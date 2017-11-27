@@ -15,22 +15,31 @@ struct LoadMorePicturesAction: Action {
 }
 
 
-
 /// Актуализировать верхнюю часть списка
 struct RefreshPicturesAction: Action {
 }
 
 
-
-//struct LoadedToBeginPicturesSuccessAction: Action {
-//    let pictures: [PictureViewModel]
-//}
-
 struct LoadedPicturesSuccessAction: Action {
     let pictures: [PictureViewModel]
 }
+
 
 struct LoadedPicturesFailureAction: Action {
     let error: Error
 }
 
+
+struct RefreshedPicturesSuccessAction: Action {
+    let pictures: [PictureViewModel]
+}
+
+
+struct RefreshedPicturesFailureAction: Action {
+    let error: Error
+}
+
+
+struct StopRefreshingPicturesAction: Action {
+    
+}

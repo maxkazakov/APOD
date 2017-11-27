@@ -18,19 +18,24 @@ func picturesReducer(state: PicturesState?, action: Action) -> PicturesState {
     case _ as RefreshPicturesAction:
         return PicturesState(loading: .refreshing, error: nil, pictures: state.pictures)
         
-//    case let success as LoadedToBeginPicturesSuccessAction:
-//        print("Was: \(state.pictures.count), now: \(state.pictures.count + success.pictures.count)")
-//        return PicturesState(loading: .none, error: nil, pictures: success.pictures + state.pictures)
-    
-        
     case let success as LoadedPicturesSuccessAction:
         print("Was: \(state.pictures.count), now: \(state.pictures.count + success.pictures.count)")
         return PicturesState(loading: .none, error: nil, pictures: state.pictures + success.pictures)
         
-        
     case let failure as LoadedPicturesFailureAction:
         return PicturesState(loading: .none, error: failure.error, pictures: state.pictures)
+    
+    case let success as RefreshedPicturesSuccessAction:
+        print("Was: \(state.pictures.count), now: \(state.pictures.count + success.pictures.count)")
+        return PicturesState(loading: .none, error: nil, pictures:  success.pictures + state.pictures)
         
+    case let failure as RefreshedPicturesFailureAction:
+        return PicturesState(loading: .none, error: failure.error, pictures: state.pictures)
+    
+    case _ as StopRefreshingPicturesAction:
+        return PicturesState(loading: .none, error: nil, pictures: state.pictures)
+        
+    
     default:
         return state
     }

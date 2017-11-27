@@ -17,6 +17,7 @@ var store = Store<AppState>(
     state: nil,
     middleware: [
 //        loggingMiddleware,
+        refreshPicturesMiddleware,
         loadMorePicturesMiddleware])
 
 

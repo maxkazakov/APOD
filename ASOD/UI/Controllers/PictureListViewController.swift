@@ -11,8 +11,7 @@ import ReSwift
 
 
 class PictureListViewController: UITableViewController, StoreSubscriber {
-    
-   
+       
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,9 +20,16 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
 //        navigationItem.rightBarButtonItem = refreshButton
         loadData(portionSize: portiosnSize)
         
+        refreshControl = UIRefreshControl()
+        refreshControl?.addTarget(self, action: #selector(refresh), for: .valueChanged)
+        
         tableView.rowHeight = UITableViewAutomaticDimension
     }
     
+    
+    @objc func refresh(sender: Any) {
+        store.dispatch(RefreshPicturesAction())
+    }
     
     
     func newState(state: PicturesState) {
@@ -74,7 +80,7 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         cellHeights[indexPath] = cell.frame.size.height
-        if isLoading {
+        if isLoading == .loadingMore {
             return
         }
         let contentOffset = dataSource.count - (indexPath.row + 1)
@@ -96,9 +102,11 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     // MARK: -Private
     private var dataSource = [PictureViewModel]()
     private let tableViewFooter = PictureTableFooterView(frame: CGRect(x: 0, y: 0, width: 0, height: 50))
-    private var isLoading = false
+    private var isLoading: LoadingState = .none
     private var portiosnSize = 5
     private var cellHeights: [IndexPath : CGFloat] = [:]
+    
+    
     
 //    lazy var refreshButton: UIBarButtonItem = {
 //        UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(PictureListViewController.reload))
@@ -113,14 +121,26 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     
     
     private func setIsLoading(_ value: LoadingState) {
-        switch value {
-        case .loadingMore:
-            isLoading = true
+        switch (isLoading, value) {
+        case (.none, .loadingMore):
+            tableView.tableFooterView?.isHidden = false
+            tableViewFooter.setIsLoading(true)
+            
+        case (.loadingMore, .none):
+            tableView.tableFooterView?.isHidden = true
+            tableViewFooter.setIsLoading(false)
+            
+        case (.refreshing, .none):
+            refreshControl?.endRefreshing()
+            
+        case (.loadingMore, .refreshing), (.refreshing, .loadingMore):
+            print("WTF?")
+        
         default:
-            isLoading = false
+            break
         }
-        tableView.tableFooterView?.isHidden = !isLoading
-        tableViewFooter.setIsLoading(isLoading)
+        
+        isLoading = value        
     }
     
     

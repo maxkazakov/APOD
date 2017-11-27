@@ -22,28 +22,21 @@ class DataSourceService {
     
     
     
-    func loadMorePictures(from date: Date?, portionSize: Int, completion: @escaping (LoadingPictureResult) -> Void) {
-        let date = date?.getDateFor(days: -1) ?? Date().withoutTime().getDateFor(days: -1)!
-        
-        var requiredDates = [Date]()
-        for i in 0...(portionSize - 1) {
-            requiredDates.append(date.getDateFor(days: -i)!)
-        }
-        
+    func loadPictures(dates: [Date], completion: @escaping (LoadingPictureResult) -> Void) {
         // try from cache
-        databaseService.load(dates: requiredDates) { pictures in
-            let viewModels = pictures.map { PictureViewModel(from: $0)}
-            let cachedCount = viewModels.count
+        databaseService.load(dates: dates) { pictures in
+            let cacheViewModels = pictures.map { PictureViewModel(from: $0)}
+            let cachedCount = cacheViewModels.count
             
-            if cachedCount == portionSize {
+            if cachedCount == dates.count {
                 print("All loaded from cache")
-                completion(.loaded(viewModels))
+                completion(.loaded(cacheViewModels))
                 return
             }
             
             // cache misses
-            let foundDates = Set(viewModels.map { $0.date })
-            let missedDates = Set(requiredDates).subtracting(foundDates).sorted{ $0 > $1 }
+            let foundDates = Set(cacheViewModels.map { $0.date })
+            let missedDates = Set(dates).subtracting(foundDates).sorted{ $0 > $1 }
             
             // try load from network
             self.networkService.loadPictures(from: missedDates) { error, pictures in
@@ -51,12 +44,13 @@ class DataSourceService {
                     completion(.error(error))
                     return
                 }
-                // save cache
-                if let pictures = pictures {
-                    self.databaseService.save(pictures: pictures)
+                guard let pictures = pictures else {
+                    return
                 }
-                let viewModels = pictures!.map { PictureViewModel(from: $0)}
-                completion(.loaded(viewModels))
+                
+                self.databaseService.save(pictures: pictures)
+                let viewModels = pictures.map { PictureViewModel(from: $0)} + cacheViewModels
+                completion(.loaded(viewModels.sorted{ $0.date > $1.date }))
             }
         }
     }
