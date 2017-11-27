@@ -27,8 +27,14 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     }
     
     
+    
     @objc func refresh(sender: Any) {
-        store.dispatch(RefreshPicturesAction())
+        if isLoading == .none {
+            store.dispatch(RefreshPicturesAction())
+        }
+        else {
+            refreshControl?.endRefreshing()
+        }
     }
     
     
