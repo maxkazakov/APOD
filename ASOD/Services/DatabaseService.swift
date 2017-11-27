@@ -13,18 +13,23 @@ import RealmSwift
 
 class DataBaseService {
     
-    func load(dates: [Date], completion: ([PictureModel]) -> Void) {
-        let realm = try! Realm()
-        let pictures = Array(realm.objects(PictureModel.self).filter("date IN %@", dates).sorted(byKeyPath: "date", ascending: false))
-        completion(pictures)
+    func load(dates: [Date], completion: @escaping ([PictureModel]) -> Void) {
+        DispatchQueue.global(qos: .userInitiated).async {
+//            sleep(1)
+            let realm = try! Realm()
+            let pictures = Array(realm.objects(PictureModel.self).filter("date IN %@", dates).sorted(byKeyPath: "date", ascending: false))
+            completion(pictures)
+        }
     }
     
     
     func save(pictures: [PictureModel]) {
-        let realm = try! Realm()
-        try? realm.write {
-            pictures.forEach {
-                realm.add($0)
+        DispatchQueue.global(qos: .userInitiated).async {
+            let realm = try! Realm()
+            try? realm.write {
+                pictures.forEach {
+                    realm.add($0)
+                }
             }
         }
     }

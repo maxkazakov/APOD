@@ -23,7 +23,8 @@ class DataSourceService {
     
     
     func loadMorePictures(from date: Date?, portionSize: Int, completion: @escaping (LoadingPictureResult) -> Void) {
-        let date = date?.getDateFor(days: -1) ?? Date().withoutTime()
+        let date = date?.getDateFor(days: -1) ?? Date().withoutTime().getDateFor(days: -1)!
+        
         var requiredDates = [Date]()
         for i in 0...(portionSize - 1) {
             requiredDates.append(date.getDateFor(days: -i)!)
@@ -45,7 +46,7 @@ class DataSourceService {
             let missedDates = Set(requiredDates).subtracting(foundDates).sorted{ $0 > $1 }
             
             // try load from network
-            networkService.loadPictures(from: missedDates) { error, pictures in
+            self.networkService.loadPictures(from: missedDates) { error, pictures in
                 if let error = error {
                     completion(.error(error))
                     return

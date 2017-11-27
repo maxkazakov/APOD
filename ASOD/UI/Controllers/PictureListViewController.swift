@@ -18,8 +18,8 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
         super.viewDidLoad()
         tableView.tableFooterView = tableViewFooter
         tableView.tableFooterView?.isHidden = true
-        navigationItem.rightBarButtonItem = refreshButton
-        loadData(from: dataSource.last?.date, portionSize: portiosnSize)
+//        navigationItem.rightBarButtonItem = refreshButton
+        loadData(portionSize: portiosnSize)
         
         tableView.rowHeight = UITableViewAutomaticDimension
     }
@@ -27,9 +27,9 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     
     
     func newState(state: PicturesState) {
-        setIsLoading(state.loading)
         dataSource = state.pictures
         tableView.reloadData()
+        setIsLoading(state.loading)
     }
 
     
@@ -79,7 +79,7 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
         }
         let contentOffset = dataSource.count - (indexPath.row + 1)
         if contentOffset == 0 {
-            loadData(from: dataSource.last?.date, portionSize: portiosnSize)
+            loadData(portionSize: portiosnSize)
         }
     }
     
@@ -100,15 +100,15 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     private var portiosnSize = 5
     private var cellHeights: [IndexPath : CGFloat] = [:]
     
-    lazy var refreshButton: UIBarButtonItem = {
-        UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(PictureListViewController.reload))
-    }()
-    
-    
-    
-    @objc private func reload() {
-        loadData(from: nil, portionSize: portiosnSize)
-    }
+//    lazy var refreshButton: UIBarButtonItem = {
+//        UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(PictureListViewController.reload))
+//    }()
+//
+//
+//
+//    @objc private func reload() {
+//        loadData(from: nil, portionSize: portiosnSize)
+//    }
     
     
     
@@ -125,7 +125,7 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     
     
     
-    func loadData(from date: Date?, portionSize: Int) {
+    func loadData(portionSize: Int) {
         store.dispatch(LoadMorePicturesAction(portionSize: portionSize))
     }
 }
