@@ -25,7 +25,7 @@ func picturesReducer(state: PicturesState?, action: Action) -> PicturesState {
         
     case let success as LoadedPicturesSuccessAction:
         print("Was: \(state.pictures.count), now: \(state.pictures.count + success.pictures.count)")
-        return PicturesState(loading: .none, error: nil, pictures: state.pictures)
+        return PicturesState(loading: .none, error: nil, pictures: state.pictures + success.pictures)
         
         
     case let failure as LoadedPicturesFailureAction:

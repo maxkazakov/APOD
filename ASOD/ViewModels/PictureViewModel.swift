@@ -51,11 +51,4 @@ struct PictureViewModel: Hashable {
         self.hdurl = URL(string: model.url)
         self.copyright = model.copyright
     }
-    
-    
-    static let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "YYYY-MM-dd"
-        return formatter
-    }()
 }

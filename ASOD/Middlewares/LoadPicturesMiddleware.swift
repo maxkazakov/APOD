@@ -9,7 +9,7 @@
 
 import ReSwift
 
-let loadPicturesMiddleware: Middleware<AppState> = { dispatch, getState in
+let loadMorePicturesMiddleware: Middleware<AppState> = { dispatch, getState in
     return { next in
         return { action in
             guard let loadAction = action as? LoadMorePicturesAction else {
@@ -18,7 +18,7 @@ let loadPicturesMiddleware: Middleware<AppState> = { dispatch, getState in
             let state = getState()!
             let date = state.picturesState.pictures.last?.date ?? nil
             
-            DataSourceService.shared.loadPictures(from: date, portionSize: loadAction.portionSize) { result in
+            DataSourceService.shared.loadMorePictures(from: date, portionSize: loadAction.portionSize) { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .loaded(let pictures):

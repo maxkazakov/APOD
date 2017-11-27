@@ -20,11 +20,17 @@ enum LoadingPictureResult {
 class DataSourceService {
     static let shared = DataSourceService()
     
-    func loadPictures(from date: Date?, portionSize: Int, completion: @escaping (LoadingPictureResult) -> Void) {
-        let date = date?.getDateFor(days: -1) ?? Date()        
+    
+    
+    func loadMorePictures(from date: Date?, portionSize: Int, completion: @escaping (LoadingPictureResult) -> Void) {
+        let date = date?.getDateFor(days: -1) ?? Date().withoutTime()
+        var requiredDates = [Date]()
+        for i in 0...(portionSize - 1) {
+            requiredDates.append(date.getDateFor(days: -i)!)
+        }
         
         // try from cache
-        databaseService.load(from: date, portionSize: portionSize) { pictures in
+        databaseService.load(dates: requiredDates) { pictures in
             let viewModels = pictures.map { PictureViewModel(from: $0)}
             let cachedCount = viewModels.count
             
@@ -35,12 +41,11 @@ class DataSourceService {
             }
             
             // cache misses
-            let missedCount = portionSize - cachedCount
-            let lastDate = viewModels.last?.date.getDateFor(days: -1) ?? date
-            print("\(missedCount) missed, \(cachedCount) loaded from cache")
+            let foundDates = Set(viewModels.map { $0.date })
+            let missedDates = Set(requiredDates).subtracting(foundDates).sorted{ $0 > $1 }
             
             // try load from network
-            networkService.loadPictures(from: lastDate, portionSize: missedCount) { error, pictures in
+            networkService.loadPictures(from: missedDates) { error, pictures in
                 if let error = error {
                     completion(.error(error))
                     return

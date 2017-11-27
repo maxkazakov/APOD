@@ -13,9 +13,9 @@ import RealmSwift
 
 class DataBaseService {
     
-    func load(from date: Date, portionSize: Int, completion: ([PictureModel]) -> Void) {
+    func load(dates: [Date], completion: ([PictureModel]) -> Void) {
         let realm = try! Realm()
-        let pictures = Array(realm.objects(PictureModel.self).filter("date <= %@", date).sorted(byKeyPath: "date", ascending: false).prefix(portionSize))
+        let pictures = Array(realm.objects(PictureModel.self).filter("date IN %@", dates).sorted(byKeyPath: "date", ascending: false))
         completion(pictures)
     }
     

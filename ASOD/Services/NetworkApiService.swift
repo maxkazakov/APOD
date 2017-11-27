@@ -15,10 +15,8 @@ enum NetworkError: Error {
 
 class NetworkApiService {
     
-    func loadPictures(from date: Date, portionSize: Int, completion: @escaping (Error?, [PictureModel]?) -> Void) {
-        let dateStr = PictureViewModel.dateFormatter.string(from: date)
-        
-        let queryItems = [URLQueryItem(name: "date", value: dateStr), URLQueryItem(name: "portionSize", value: String(portionSize))]
+    func loadPictures(from dates: [Date], completion: @escaping (Error?, [PictureModel]?) -> Void) {
+        let queryItems = dates.map { URLQueryItem(name: "dates", value: dateFormatter.string(from: $0)) }
         var urlComponents = URLComponents(string: api)!
         urlComponents.queryItems = queryItems
         let url = urlComponents.url!
@@ -55,7 +53,7 @@ class NetworkApiService {
                         completion(NetworkError.error(message: "Error trying to convert data to JSON"), nil)
                         return
                     }
-                    guard let date = PictureViewModel.dateFormatter.date(from: dict["date"] as! String) else {
+                    guard let date = dateFormatter.date(from: dict["date"] as! String) else {
                         completion(NetworkError.error(message: "Error trying to convert date from string to Date"), nil)
                         return
                     }
