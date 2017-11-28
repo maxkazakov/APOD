@@ -19,7 +19,7 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
         tableView.tableFooterView?.isHidden = true
 //        navigationItem.rightBarButtonItem = refreshButton
         loadData(portionSize: portiosnSize)
-        
+        tableView.separatorStyle = .none
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(refresh), for: .valueChanged)
         
@@ -99,7 +99,7 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     
     override func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
         guard let height = cellHeights[indexPath] else {
-            return 100
+            return 0
         }
         return height
     }

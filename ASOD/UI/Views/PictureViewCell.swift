@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 class PictureViewCell: UITableViewCell {
     static let identifier = String(describing: PictureViewCell.self)
@@ -15,12 +16,37 @@ class PictureViewCell: UITableViewCell {
     @IBOutlet weak var explanationLabel: UILabel!
     @IBOutlet weak var picture: UIImageView!
     @IBOutlet weak var dateLabel: UILabel!
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var authorLabel: UILabel!
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        picture.layer.cornerRadius = 10
+        picture.layer.masksToBounds = true
+    }
     
     func setup(viewModel: PictureViewModel) {
-        self.picture.image = #imageLiteral(resourceName: "picturePlaceholder")
-        self.explanationLabel.text = viewModel.explanation
-        self.dateLabel.text = PictureViewCell.dateFormatter.string(from: viewModel.date)
+        
+        if let imageUrl = viewModel.url {
+            picture.kf.indicatorType = .activity
+            picture.kf.setImage(with: imageUrl)
+        } else {
+            picture.image = #imageLiteral(resourceName: "picturePlaceholder")
+        }
+        
+        explanationLabel.text = viewModel.explanation
+        dateLabel.text = PictureViewCell.dateFormatter.string(from: viewModel.date)
+        titleLabel.text = viewModel.title
+        if viewModel.copyright.isEmpty {
+            authorLabel.isHidden = true
+        }
+        else {
+            authorLabel.isHidden = false
+            authorLabel.text = "Author: \(viewModel.copyright)"
+        }
+        
     }
+    
     
     static var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()

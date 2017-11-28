@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Alamofire
 
 enum NetworkError: Error {
     case error(message: String)
@@ -14,63 +15,42 @@ enum NetworkError: Error {
 
 
 class NetworkApiService {
+    private let url = "https://asod-server.herokuapp.com/pictures"
+    private let testurl = "http://localhost:5000/pictures"
+    
     
     func loadPictures(from dates: [Date], completion: @escaping (Error?, [PictureModel]?) -> Void) {
-        let queryItems = dates.map { URLQueryItem(name: "dates", value: dateFormatter.string(from: $0)) }
-        var urlComponents = URLComponents(string: api)!
-        urlComponents.queryItems = queryItems
-        let url = urlComponents.url!
-        let urlRequest = URLRequest(url: url)        
-        let session = URLSession.shared
-        let task = session.dataTask(with: urlRequest) { data, reponse, error in
-            if let error = error {
-                completion(error, nil)
-                return
-            }
-            
-            
-            guard let responseData = data else {
-                completion(NetworkError.error(message: "Error: did not receive data"), nil)
-                return
-            }
-            
-            
-            if let httpResponse = reponse as? HTTPURLResponse, httpResponse.statusCode != 200 {
-                let message = String(data: responseData, encoding: .utf8) ?? ""
-                completion(NetworkError.error(message: "Code: \(httpResponse.statusCode). Message: \(message)"), nil)
-                return
-            }
-            
-            
-            var pictures = [PictureModel]()
-            do {
-                guard let jsonObj = try JSONSerialization.jsonObject(with: responseData, options: []) as? [Any] else {
-                    completion(NetworkError.error(message: "Error trying to convert data to JSON"), nil)
-                    return
-                }
-                for value in jsonObj {
-                    guard var dict = value as? [String: Any] else {
+        let parameters: Parameters = ["dates" : dates.map{ dateFormatter.string(from: $0) }]
+        Alamofire.request(url, parameters: parameters)
+            .validate(statusCode: 200..<300)
+            .validate(contentType: ["application/json"])
+            .responseJSON { response in
+                switch response.result {
+                case .success(let data):
+                    var pictures = [PictureModel]()
+                    guard let jsonArr = data as? [Any] else {
                         completion(NetworkError.error(message: "Error trying to convert data to JSON"), nil)
                         return
                     }
-                    guard let date = dateFormatter.date(from: dict["date"] as! String) else {
-                        completion(NetworkError.error(message: "Error trying to convert date from string to Date"), nil)
-                        return
+                    for value in jsonArr {
+                        guard var dict = value as? [String: Any] else {
+                            completion(NetworkError.error(message: "Error trying to convert data to JSON"), nil)
+                            return
+                        }
+                        guard let date = dateFormatter.date(from: dict["date"] as! String) else {
+                            completion(NetworkError.error(message: "Error trying to convert date from string to Date"), nil)
+                            return
+                        }
+                        dict["date"] = date
+                        let picture = PictureModel(value: dict)
+                        pictures.append(picture)
                     }
-                    dict["date"] = date
-                    let picture = PictureModel(value: dict)
-                    pictures.append(picture)
+                    completion(nil, pictures)
+
+                case .failure(let error):
+                    completion(error, nil)
                 }
-                completion(nil, pictures)
-            } catch  {
-                completion(error, nil)
-                print("error trying to convert data to JSON")
-                return
-            }
         }
-        task.resume()
     }
-    
-    
-    private let api = "https://asod-server.herokuapp.com/pictures"
 }
+
