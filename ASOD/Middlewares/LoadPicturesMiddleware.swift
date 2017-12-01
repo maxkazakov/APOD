@@ -18,7 +18,7 @@ let loadMorePicturesMiddleware: Middleware<AppState> = { dispatch, getState in
             let state = getState()!
             
             let lastDate = state.picturesState.pictures.last?.date ?? nil
-            let date = lastDate?.getDateFor(days: -1) ?? Date().withoutTime().getDateFor(days: -13)!
+            let date = lastDate?.getDateFor(days: -1) ?? Date().withoutTime()
             var dates = [Date]()
             for i in 0...(loadAction.portionSize - 1) {
                 dates.append(date.getDateFor(days: -i)!)
@@ -28,9 +28,9 @@ let loadMorePicturesMiddleware: Middleware<AppState> = { dispatch, getState in
                 DispatchQueue.main.async {
                     switch result {
                     case .loaded(let pictures):
-                        dispatch(LoadedPicturesSuccessAction(pictures: pictures))
+                        dispatch(LoadMorePicturesSuccessAction(pictures: pictures))
                     case .error(let error):
-                        dispatch(LoadedPicturesFailureAction(error: error))
+                        dispatch(LoadMorePicturesFailureAction(error: error))
                     }
                 }                
             }
@@ -50,10 +50,9 @@ let refreshPicturesMiddleware: Middleware<AppState> = { dispatch, getState in
             
             let today = Date().withoutTime()
             let firstActualDate = state.picturesState.pictures.first?.date ?? nil
-            let portionSize = firstActualDate.map { today.daysOffset(from: $0) } ?? 5
-            if portionSize == 0 {
+            guard let portionSize = firstActualDate.map({ today.daysOffset(from: $0) }), portionSize > 0 else {
                 next(action)
-                dispatch(StopRefreshingPicturesAction())
+                dispatch(StopRefreshPicturesAction())
                 return
             }
             
@@ -66,9 +65,9 @@ let refreshPicturesMiddleware: Middleware<AppState> = { dispatch, getState in
                 DispatchQueue.main.async {
                     switch result {
                     case .loaded(let pictures):
-                        dispatch(RefreshedPicturesSuccessAction(pictures: pictures))
+                        dispatch(RefreshPicturesSuccessAction(pictures: pictures))
                     case .error(let error):
-                        dispatch(RefreshedPicturesFailureAction(error: error))
+                        dispatch(RefreshPicturesFailureAction(error: error))
                     }
                 }
             }

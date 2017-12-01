@@ -40,8 +40,8 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     
     func newState(state: PicturesState) {
         dataSource = state.pictures
-        tableView.reloadData()
         setIsLoading(state.loading)
+        tableView.reloadData()
     }
 
     
@@ -99,7 +99,7 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     
     override func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
         guard let height = cellHeights[indexPath] else {
-            return 0
+            return 100
         }
         return height
     }
@@ -109,7 +109,7 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     private var dataSource = [PictureViewModel]()
     private let tableViewFooter = PictureTableFooterView(frame: CGRect(x: 0, y: 0, width: 0, height: 50))
     private var isLoading: LoadingState = .none
-    private var portiosnSize = 5
+    private var portiosnSize = 10
     private var cellHeights: [IndexPath : CGFloat] = [:]
     
     
@@ -137,10 +137,8 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
             tableViewFooter.setIsLoading(false)
             
         case (.refreshing, .none):
+            cellHeights.removeAll()
             refreshControl?.endRefreshing()
-            
-        case (.loadingMore, .refreshing), (.refreshing, .loadingMore):
-            print("WTF?")
         
         default:
             break

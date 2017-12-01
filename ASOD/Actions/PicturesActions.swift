@@ -14,32 +14,32 @@ struct LoadMorePicturesAction: Action {
     let portionSize: Int
 }
 
+struct LoadMorePicturesSuccessAction: Action {
+    let pictures: [PictureViewModel]
+}
+
+
+struct LoadMorePicturesFailureAction: Action {
+    let error: Error
+}
+
+
 
 /// Актуализировать верхнюю часть списка
 struct RefreshPicturesAction: Action {
 }
 
 
-struct LoadedPicturesSuccessAction: Action {
+struct RefreshPicturesSuccessAction: Action {
     let pictures: [PictureViewModel]
 }
 
 
-struct LoadedPicturesFailureAction: Action {
+struct RefreshPicturesFailureAction: Action {
     let error: Error
 }
 
 
-struct RefreshedPicturesSuccessAction: Action {
-    let pictures: [PictureViewModel]
-}
-
-
-struct RefreshedPicturesFailureAction: Action {
-    let error: Error
-}
-
-
-struct StopRefreshingPicturesAction: Action {
+struct StopRefreshPicturesAction: Action {
     
 }

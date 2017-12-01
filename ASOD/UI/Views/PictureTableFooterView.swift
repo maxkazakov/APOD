@@ -14,9 +14,7 @@ class PictureTableFooterView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        addSubview(busyIndicator)
-        layer.backgroundColor = UIColor.green.cgColor
-        
+        addSubview(busyIndicator)        
         setupConstraints()
     }
     

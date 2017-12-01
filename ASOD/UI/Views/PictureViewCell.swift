@@ -25,14 +25,23 @@ class PictureViewCell: UITableViewCell {
         picture.layer.masksToBounds = true
     }
     
+    
+    
     func setup(viewModel: PictureViewModel) {
-        
-        if let imageUrl = viewModel.url {
-            picture.kf.indicatorType = .activity
-            picture.kf.setImage(with: imageUrl)
-        } else {
+        switch viewModel.mediaType {
+        case .image:
+            if let imageUrl = viewModel.url {
+                picture.kf.indicatorType = .activity
+                picture.kf.setImage(with: imageUrl)
+            } else {
+                picture.image = #imageLiteral(resourceName: "picturePlaceholder")
+            }
+        case .video:
+            picture.image = #imageLiteral(resourceName: "videoPlaceholder")
+        case .unknown:
             picture.image = #imageLiteral(resourceName: "picturePlaceholder")
         }
+        
         
         explanationLabel.text = viewModel.explanation
         dateLabel.text = PictureViewCell.dateFormatter.string(from: viewModel.date)
@@ -44,7 +53,6 @@ class PictureViewCell: UITableViewCell {
             authorLabel.isHidden = false
             authorLabel.text = "Author: \(viewModel.copyright)"
         }
-        
     }
     
     
@@ -52,7 +60,6 @@ class PictureViewCell: UITableViewCell {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.doesRelativeDateFormatting = true
-//        formatter.dateFormat = "YYYY-MM-dd"
         return formatter
     }()
 }
