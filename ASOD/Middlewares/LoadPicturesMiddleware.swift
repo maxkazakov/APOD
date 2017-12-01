@@ -24,7 +24,8 @@ let loadMorePicturesMiddleware: Middleware<AppState> = { dispatch, getState in
                 dates.append(date.getDateFor(days: -i)!)
             }
             
-            DataSourceService.shared.loadPictures(dates: dates) { result in
+            DispatchQueue.global(qos: .userInteractive).async {
+                let result = DataSourceService.loadPictures(dates: dates)
                 DispatchQueue.main.async {
                     switch result {
                     case .loaded(let pictures):
@@ -32,7 +33,7 @@ let loadMorePicturesMiddleware: Middleware<AppState> = { dispatch, getState in
                     case .error(let error):
                         dispatch(LoadMorePicturesFailureAction(error: error))
                     }
-                }                
+                }
             }
             return next(action)
         }
@@ -61,13 +62,14 @@ let refreshPicturesMiddleware: Middleware<AppState> = { dispatch, getState in
                 dates.append(today.getDateFor(days: -i)!)
             }
             
-            DataSourceService.shared.loadPictures(dates: dates) { result in
+            DispatchQueue.global(qos: .userInteractive).async {
+                let result = DataSourceService.loadPictures(dates: dates)
                 DispatchQueue.main.async {
                     switch result {
                     case .loaded(let pictures):
-                        dispatch(RefreshPicturesSuccessAction(pictures: pictures))
+                        dispatch(LoadMorePicturesSuccessAction(pictures: pictures))
                     case .error(let error):
-                        dispatch(RefreshPicturesFailureAction(error: error))
+                        dispatch(LoadMorePicturesFailureAction(error: error))
                     }
                 }
             }

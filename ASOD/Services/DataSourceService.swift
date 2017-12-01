@@ -18,20 +18,17 @@ enum LoadingPictureResult {
 
 
 class DataSourceService {
-    static let shared = DataSourceService()
     
-    
-    
-    func loadPictures(dates: [Date], completion: @escaping (LoadingPictureResult) -> Void) {
-        // try from cache
-        databaseService.load(dates: dates) { pictures in
+    static func loadPictures(dates: [Date]) -> LoadingPictureResult {
+        do {
+            // from cache first
+            var pictures = try DatabaseService.load(dates: dates)
             let cacheViewModels = pictures.map { PictureViewModel(from: $0)}
             let cachedCount = cacheViewModels.count
             
             if cachedCount == dates.count {
                 print("All loaded from cache")
-                completion(.loaded(cacheViewModels))
-                return
+                return .loaded(cacheViewModels)
             }
             
             // cache misses
@@ -39,25 +36,22 @@ class DataSourceService {
             let missedDates = Set(dates).subtracting(foundDates).sorted{ $0 > $1 }
             
             // try load from network
-            self.networkService.loadPictures(from: missedDates) { error, pictures in
-                if let error = error {
-                    completion(.error(error))
-                    return
-                }
-                guard let pictures = pictures else {
-                    return
-                }
-                
-                self.databaseService.save(pictures: pictures)
-                let viewModels = pictures.map { PictureViewModel(from: $0)} + cacheViewModels
-                completion(.loaded(viewModels.sorted{ $0.date > $1.date }))
-            }
+            pictures = try NetworkApiService.loadPictures(from: missedDates)
+            try DatabaseService.save(pictures: pictures)
+            let viewModels = pictures.map { PictureViewModel(from: $0)} + cacheViewModels
+            
+            return .loaded(viewModels.sorted{ $0.date > $1.date })
+        }
+        catch {
+            return .error(error)
         }
     }
-    
-    
-    // MARK: -Private
-    
-    private let networkService = NetworkApiService()
-    private let databaseService = DataBaseService()
 }
+
+
+
+
+
+
+
+
