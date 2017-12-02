@@ -105,6 +105,17 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     }
     
     
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let picture = dataSource[indexPath.row]
+        guard picture.mediaType == .image else {
+            return
+        }
+        let detailVc = PictureDetailViewController()
+        detailVc.setup(picture: picture)
+        navigationController?.pushViewController(detailVc, animated: true)
+    }
+    
+    
     // MARK: -Private
     private var dataSource = [PictureViewModel]()
     private let tableViewFooter = PictureTableFooterView(frame: CGRect(x: 0, y: 0, width: 0, height: 50))
