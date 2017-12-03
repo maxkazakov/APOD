@@ -14,13 +14,14 @@ extension UIImage {
         let oldWidth = self.size.width
         let scaleFactor = width / oldWidth
         
-        let newHeight = self.size.height * scaleFactor
-        let newWidth = oldWidth * scaleFactor
+        let newHeight = Int(self.size.height * scaleFactor)
+        let newWidth = Int(oldWidth * scaleFactor)
         
-        UIGraphicsBeginImageContext(CGSize(width: newWidth, height: newHeight))
+        UIGraphicsBeginImageContextWithOptions(CGSize(width: newWidth, height: newHeight), true, UIScreen.main.scale)
         self.draw(in: CGRect(x: 0, y: 0, width: newWidth, height: newHeight))
         let newImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
+        print(newImage!.scale)
         return newImage!
     }
 }

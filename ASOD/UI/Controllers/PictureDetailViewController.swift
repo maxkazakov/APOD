@@ -9,6 +9,11 @@
 import UIKit
 import Kingfisher
 
+
+
+
+
+
 class PictureDetailViewController: UIViewController {
     
     private let imageView: UIImageView = {
@@ -16,6 +21,19 @@ class PictureDetailViewController: UIViewController {
         view.contentMode = .scaleToFill
         return view
     }()
+    
+    
+    private let closeButton: UIButton = {
+        let button = UIButton()
+        button.setImage(#imageLiteral(resourceName: "backIcon"), for: .normal)
+        button.addTarget(self, action: #selector(PictureDetailViewController.closeAction), for: .touchUpInside)
+        return button
+    }()
+    
+    
+    @objc private func closeAction() {
+        navigationController?.popViewController(animated: true)
+    }
     
     private let titleLabel = UILabel()
     
@@ -35,18 +53,33 @@ class PictureDetailViewController: UIViewController {
         let leadingTitle = NSLayoutConstraint(item: titleLabel, attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: 1, constant: 0)
         let trailingTitle = NSLayoutConstraint(item: titleLabel, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: 1, constant: 0)
         view.addConstraints([topTitle, leadingTitle, trailingTitle])
+        
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
+        let topButton = NSLayoutConstraint(item: closeButton, attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: 1, constant: 8)
+        let leadingButton = NSLayoutConstraint(item: closeButton, attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: 1, constant: 8)
+        let widthButton = NSLayoutConstraint(item: closeButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 25)
+        let heightButton = NSLayoutConstraint(item: closeButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 25)
+        view.addConstraints([topButton, leadingButton, widthButton, heightButton])
     }
     
+    
+    override var prefersStatusBarHidden: Bool {
+        return statusBarShouldBeHidden
+    }
+    
+    
+    override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
+        return .none
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor.lightGray
         view.addSubview(imageView)
         view.addSubview(titleLabel)
+        view.addSubview(closeButton)
         
-        navigationController?.navigationBar.isTranslucent = false
-        
-        setupConstraints()
+        setupConstraints()        
     }
     
     
@@ -71,4 +104,15 @@ class PictureDetailViewController: UIViewController {
         }
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        navigationController?.setNavigationBarHidden(true, animated: true)
+        statusBarShouldBeHidden = true
+        self.setNeedsStatusBarAppearanceUpdate()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        navigationController?.setNavigationBarHidden(false, animated: true)
+    }
+    
+    private var statusBarShouldBeHidden: Bool = false
 }

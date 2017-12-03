@@ -9,14 +9,45 @@
 import UIKit
 import ReSwift
 
+fileprivate class InteractivePopRecognizer: NSObject, UIGestureRecognizerDelegate {
+    
+    var navigationController: UINavigationController
+    
+    init(controller: UINavigationController) {
+        self.navigationController = controller
+    }
+    
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        return navigationController.viewControllers.count > 1
+    }
+    
+    // This is necessary because without it, subviews of your top controller can
+    // cancel out your gesture recognizer on the edge.
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
+}
+
 
 class PictureListViewController: UITableViewController, StoreSubscriber {
-       
+    private var popRecognizer: InteractivePopRecognizer?
+    
+    
+    private func setInteractiveRecognizer() {
+        guard let controller = navigationController else { return }
+        popRecognizer = InteractivePopRecognizer(controller: controller)
+        controller.interactivePopGestureRecognizer?.delegate = popRecognizer
+    }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.tableFooterView = tableViewFooter
         tableView.tableFooterView?.isHidden = true
+        if #available(iOS 11.0, *) {
+            tableView.contentInsetAdjustmentBehavior = .never
+        }
+        title = "Astronomy pictures of the day"
 //        navigationItem.rightBarButtonItem = refreshButton
         loadData(portionSize: portiosnSize)
         tableView.separatorStyle = .none
@@ -24,6 +55,7 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
         refreshControl?.addTarget(self, action: #selector(refresh), for: .valueChanged)
         
         tableView.rowHeight = UITableViewAutomaticDimension
+        setInteractiveRecognizer()
     }
     
     
@@ -35,6 +67,11 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
         else {
             refreshControl?.endRefreshing()
         }
+    }
+    
+    
+    override var prefersStatusBarHidden: Bool {
+        return false
     }
     
     
@@ -53,11 +90,15 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
             }
         }
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        navigationController?.navigationBar.isHidden = false
+    }
 
     
     
     override func viewWillDisappear(_ animated: Bool) {
-        store.unsubscribe(self)
+        store.unsubscribe(self)        
     }
     
     
@@ -105,16 +146,24 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     }
     
     
+    
+    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let picture = dataSource[indexPath.row]
-        guard picture.mediaType == .image else {
-            return
-        }
-        let detailVc = PictureDetailViewController()
-        detailVc.setup(picture: picture)
-        navigationController?.pushViewController(detailVc, animated: true)
+        switch picture.mediaType {
+        case .image:
+            let detailVc = PictureDetailViewController()
+            navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+            navigationController?.pushViewController(detailVc, animated: true)
+            detailVc.setup(picture: picture)            
+        default:
+            break
+        }        
     }
     
+    
+    
+
     
     // MARK: -Private
     private var dataSource = [PictureViewModel]()
