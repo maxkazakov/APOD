@@ -35,6 +35,7 @@
 		9BA8DFD31FB77187009A36FC /* PicturesState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BA8DFD21FB77187009A36FC /* PicturesState.swift */; };
 		9BA8DFDD1FB8395F009A36FC /* PicturesActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BA8DFDC1FB8395F009A36FC /* PicturesActions.swift */; };
 		9BA8DFE01FB83B45009A36FC /* LoggingMiddleware.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BA8DFDF1FB83B45009A36FC /* LoggingMiddleware.swift */; };
+		9BBD082B1FDD5AF6004C6C44 /* PictureDetailsTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BBD082A1FDD5AF6004C6C44 /* PictureDetailsTableView.swift */; };
 		9BED535A1FBC0D8D0032A010 /* Date+Extention.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BED53591FBC0D8D0032A010 /* Date+Extention.swift */; };
 /* End PBXBuildFile section */
 
@@ -79,6 +80,7 @@
 		9BA8DFD21FB77187009A36FC /* PicturesState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicturesState.swift; sourceTree = "<group>"; };
 		9BA8DFDC1FB8395F009A36FC /* PicturesActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicturesActions.swift; sourceTree = "<group>"; };
 		9BA8DFDF1FB83B45009A36FC /* LoggingMiddleware.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggingMiddleware.swift; sourceTree = "<group>"; };
+		9BBD082A1FDD5AF6004C6C44 /* PictureDetailsTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PictureDetailsTableView.swift; sourceTree = "<group>"; };
 		9BED53591FBC0D8D0032A010 /* Date+Extention.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extention.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -239,6 +241,7 @@
 		9BED53561FBC05E00032A010 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				9BBD082A1FDD5AF6004C6C44 /* PictureDetailsTableView.swift */,
 				9B4435B81FB8B47900CD9252 /* PictureTableFooterView.swift */,
 				9B4435BA1FB8B7D200CD9252 /* PictureViewCell.swift */,
 			);
@@ -394,6 +397,7 @@
 				9B410CB01FD32F1C00B634FD /* UIImage+Extention.swift in Sources */,
 				9BA8DFE01FB83B45009A36FC /* LoggingMiddleware.swift in Sources */,
 				9BA8DFD31FB77187009A36FC /* PicturesState.swift in Sources */,
+				9BBD082B1FDD5AF6004C6C44 /* PictureDetailsTableView.swift in Sources */,
 				9BA8DF9B1FB4CA76009A36FC /* PictureListViewController.swift in Sources */,
 				9BA8DFBF1FB6136B009A36FC /* PictureViewModel.swift in Sources */,
 				9B8CDEFF1FB83F7A002844D5 /* PicturesReducer.swift in Sources */,

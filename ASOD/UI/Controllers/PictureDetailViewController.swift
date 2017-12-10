@@ -9,20 +9,21 @@
 import UIKit
 import Kingfisher
 
-class PictureImageView: UIView {
-    static let identifier = String(describing: PictureImageView.self)
+class PictureDetailsHeaderView: UIView {
+    static let identifier = String(describing: PictureDetailsHeaderView.self)
     
     private let pictureView = UIImageView()
     
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        pictureView.contentMode = .scaleToFill
+        pictureView.contentMode = .scaleAspectFill
         addSubview(pictureView)
         setupConstraints()
     }
     
-    var height: NSLayoutConstraint!
+    var imageHeight: NSLayoutConstraint!
+    var bottom: NSLayoutConstraint!
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -31,15 +32,19 @@ class PictureImageView: UIView {
     
     func setImage(_ image: UIImage) {
         pictureView.image = image
+        imageHeight.constant = image.size.height
     }
     
     
     private func setupConstraints() {
         pictureView.translatesAutoresizingMaskIntoConstraints = false
-        let top = NSLayoutConstraint(item: pictureView, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1, constant: 0)
+        bottom = NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: pictureView, attribute: .bottom, multiplier: 1, constant: 0)
         let leading = NSLayoutConstraint(item: pictureView, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1, constant: 0)
         let trailing = NSLayoutConstraint(item: pictureView, attribute: .trailing, relatedBy: .equal, toItem: self, attribute: .trailing, multiplier: 1, constant: 0)
-        self.addConstraints([top, leading, trailing])
+        self.addConstraints([bottom, leading, trailing])
+        
+        imageHeight = NSLayoutConstraint(item: pictureView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 200)        
+        pictureView.addConstraint(imageHeight)
     }
 }
 
@@ -129,14 +134,17 @@ class PictureDetailViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.register(PictureDescriptionViewCell.self, forCellReuseIdentifier: PictureDescriptionViewCell.identifier)
+        tableView = PictureDetailTableView(frame: self.view.bounds, style: .grouped)
+        tableView.dataSource = self
+        tableView.delegate = self
         
-        tableView.addSubview(backButton)
+        tableView.register(PictureDescriptionViewCell.self, forCellReuseIdentifier: PictureDescriptionViewCell.identifier)
+        tableView.tableHeaderView = imageView
+        
+        tableView.insertSubview(backButton, aboveSubview: imageView)
         configureBackButton()
         
-        tableView.tableHeaderView = imageView
         tableView.separatorStyle = .none
-        
     }
     
     
@@ -155,21 +163,6 @@ class PictureDetailViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: PictureDescriptionViewCell.identifier) as! PictureDescriptionViewCell
         cell.setup(picture: pictureViewModel)
         return cell
-    }
-    
-    
-    
-    private var pictureViewModel: PictureViewModel!
-    private var imageHeight: NSLayoutConstraint!
-    
-    
-    private func configureBackButton() {
-        backButton.translatesAutoresizingMaskIntoConstraints = false
-        let topButton = NSLayoutConstraint(item: backButton, attribute: .top, relatedBy: .equal, toItem: tableView, attribute: .top, multiplier: 1, constant: 8)
-        let leadingButton = NSLayoutConstraint(item: backButton, attribute: .leading, relatedBy: .equal, toItem: tableView, attribute: .leading, multiplier: 1, constant: 8)
-        let widthButton = NSLayoutConstraint(item: backButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 25)
-        let heightButton = NSLayoutConstraint(item: backButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 25)
-        tableView.addConstraints([topButton, leadingButton, widthButton, heightButton])
     }
     
     
@@ -202,6 +195,8 @@ class PictureDetailViewController: UITableViewController {
         self.setNeedsStatusBarAppearanceUpdate()
     }
 
+    
+    
     override func viewWillDisappear(_ animated: Bool) {
         navigationController?.setNavigationBarHidden(false, animated: true)
     }
@@ -210,28 +205,41 @@ class PictureDetailViewController: UITableViewController {
     
     // MARK: -Private
     
-    private let imageView = PictureImageView(frame: CGRect.zero)
+    private let imageView = PictureDetailsHeaderView(frame: CGRect.zero)
+    private var pictureViewModel: PictureViewModel!
+    private var imageHeight: NSLayoutConstraint!
+    private var statusBarShouldBeHidden: Bool = false
+    
+    
     
     private let backButton: UIButton = {
         let button = UIButton()
         button.setImage(#imageLiteral(resourceName: "backIcon"), for: .normal)
-//        button.addTarget(self, action: #selector(PictureDetailViewController.closeAction), for: .touchUpInside)
+        button.addTarget(self, action: #selector(PictureDetailViewController.closeAction), for: .touchUpInside)
         return button
     }()
     
     
     
     
-    private var statusBarShouldBeHidden: Bool = false
+    @objc private func closeAction() {
+        navigationController?.popViewController(animated: true)
+    }
     
     
     private func setImage(_ image: UIImage) {
         imageView.setImage(image)
-        if let tableHeaderView = self.tableView.tableHeaderView {
-            var headerViewFrame = tableHeaderView.frame
-            headerViewFrame.size.height = image.size.height
-            tableHeaderView.frame = headerViewFrame
-        }
+        imageView.frame.size = image.size
     }
     
+    
+    
+    private func configureBackButton() {
+        backButton.translatesAutoresizingMaskIntoConstraints = false
+        let topButton = NSLayoutConstraint(item: backButton, attribute: .top, relatedBy: .equal, toItem: tableView, attribute: .top, multiplier: 1, constant: 8)
+        let leadingButton = NSLayoutConstraint(item: backButton, attribute: .leading, relatedBy: .equal, toItem: tableView, attribute: .leading, multiplier: 1, constant: 8)
+        let widthButton = NSLayoutConstraint(item: backButton, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 25)
+        let heightButton = NSLayoutConstraint(item: backButton, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 25)
+        tableView.addConstraints([topButton, leadingButton, widthButton, heightButton])
+    }
 }
