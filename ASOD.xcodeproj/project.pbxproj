@@ -36,6 +36,7 @@
 		9BA8DFDD1FB8395F009A36FC /* PicturesActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BA8DFDC1FB8395F009A36FC /* PicturesActions.swift */; };
 		9BA8DFE01FB83B45009A36FC /* LoggingMiddleware.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BA8DFDF1FB83B45009A36FC /* LoggingMiddleware.swift */; };
 		9BBD082B1FDD5AF6004C6C44 /* PictureDetailsTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BBD082A1FDD5AF6004C6C44 /* PictureDetailsTableView.swift */; };
+		9BBD082D1FDEF92C004C6C44 /* ResizeImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BBD082C1FDEF92C004C6C44 /* ResizeImageProcessor.swift */; };
 		9BED535A1FBC0D8D0032A010 /* Date+Extention.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BED53591FBC0D8D0032A010 /* Date+Extention.swift */; };
 /* End PBXBuildFile section */
 
@@ -81,6 +82,7 @@
 		9BA8DFDC1FB8395F009A36FC /* PicturesActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicturesActions.swift; sourceTree = "<group>"; };
 		9BA8DFDF1FB83B45009A36FC /* LoggingMiddleware.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggingMiddleware.swift; sourceTree = "<group>"; };
 		9BBD082A1FDD5AF6004C6C44 /* PictureDetailsTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PictureDetailsTableView.swift; sourceTree = "<group>"; };
+		9BBD082C1FDEF92C004C6C44 /* ResizeImageProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResizeImageProcessor.swift; sourceTree = "<group>"; };
 		9BED53591FBC0D8D0032A010 /* Date+Extention.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extention.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -262,6 +264,7 @@
 			children = (
 				9BED53591FBC0D8D0032A010 /* Date+Extention.swift */,
 				9B410CAF1FD32F1C00B634FD /* UIImage+Extention.swift */,
+				9BBD082C1FDEF92C004C6C44 /* ResizeImageProcessor.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -402,6 +405,7 @@
 				9BA8DFBF1FB6136B009A36FC /* PictureViewModel.swift in Sources */,
 				9B8CDEFF1FB83F7A002844D5 /* PicturesReducer.swift in Sources */,
 				9B4435C01FBA08A100CD9252 /* DatabaseService.swift in Sources */,
+				9BBD082D1FDEF92C004C6C44 /* ResizeImageProcessor.swift in Sources */,
 				9B4435C21FBA08B700CD9252 /* NetworkApiService.swift in Sources */,
 				9B4435B91FB8B47900CD9252 /* PictureTableFooterView.swift in Sources */,
 				9BA8DFB21FB4CCCE009A36FC /* DataSourceService.swift in Sources */,

@@ -32,7 +32,9 @@ class PictureDetailsHeaderView: UIView {
     
     func setImage(_ image: UIImage) {
         pictureView.image = image
+        frame.size = image.size
         imageHeight.constant = image.size.height
+        setNeedsLayout()
     }
     
     
@@ -141,8 +143,8 @@ class PictureDetailViewController: UITableViewController {
         tableView.register(PictureDescriptionViewCell.self, forCellReuseIdentifier: PictureDescriptionViewCell.identifier)
         tableView.tableHeaderView = imageView
         
-        tableView.insertSubview(backButton, aboveSubview: imageView)
-        configureBackButton()
+//        tableView.insertSubview(backButton, aboveSubview: imageView)
+//        configureBackButton()
         
         tableView.separatorStyle = .none
     }
@@ -173,19 +175,23 @@ class PictureDetailViewController: UITableViewController {
         guard let url = picture.url else {
             return
         }
-        let resource = ImageResource(downloadURL: url)
-        let imageWidth = tableView.frame.width
-
-        KingfisherManager.shared.retrieveImage(with: resource, options: nil, progressBlock: nil) { [weak self] image, _, _, _ in
-            guard let controller = self, let image = image else {
-                return
-            }
-            let newImage = image.ratioImage(toWidth: imageWidth)
-            print(newImage.size)
-            controller.setImage(newImage)
-        }
+        loadImage(url: url)
     }
     
+    
+    
+    
+    func loadImage(url: URL) {
+        let imageWidth = tableView.frame.width
+        let resource = ImageResource(downloadURL: url)
+        let processor = ResizeImageProcessor(width: imageWidth)
+        KingfisherManager.shared.retrieveImage(with: resource, options: [.processor(processor)], progressBlock: nil) { [weak imageView] image, _, _, _ in
+            guard let view = imageView, let image = image else {
+                return
+            }
+            view.setImage(image)
+        }
+    }
     
     
     
@@ -226,12 +232,7 @@ class PictureDetailViewController: UITableViewController {
         navigationController?.popViewController(animated: true)
     }
     
-    
-    private func setImage(_ image: UIImage) {
-        imageView.setImage(image)
-        imageView.frame.size = image.size
-    }
-    
+
     
     
     private func configureBackButton() {
