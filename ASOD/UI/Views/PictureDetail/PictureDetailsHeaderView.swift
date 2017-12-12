@@ -11,7 +11,7 @@ import UIKit
 class PictureDetailsHeaderView: UIView {
     static let identifier = String(describing: PictureDetailsHeaderView.self)
     
-    private let pictureView = UIImageView()
+    let pictureView = UIImageView()
     
     
     override init(frame: CGRect) {
@@ -29,11 +29,12 @@ class PictureDetailsHeaderView: UIView {
     }
     
     
-    func setImage(_ image: UIImage) {
-        pictureView.image = image
-        frame.size = image.size
-        imageHeight.constant = image.size.height
+    
+    func set(height: CGFloat) {
+        bounds.size.height = height
+        imageHeight.constant = height
     }
+    
     
     
     private func setupConstraints() {
@@ -43,7 +44,7 @@ class PictureDetailsHeaderView: UIView {
         let trailing = NSLayoutConstraint(item: pictureView, attribute: .trailing, relatedBy: .equal, toItem: self, attribute: .trailing, multiplier: 1, constant: 0)
         self.addConstraints([bottom, leading, trailing])
         
-        imageHeight = NSLayoutConstraint(item: pictureView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 200)
+        imageHeight = NSLayoutConstraint(item: pictureView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 0)
         pictureView.addConstraint(imageHeight)
     }
 }

@@ -34,10 +34,11 @@ class PictureDetailViewController: UITableViewController {
         tableView.delegate = self        
         
         tableView.register(PictureDescriptionViewCell.self, forCellReuseIdentifier: PictureDescriptionViewCell.identifier)
-        tableView.tableHeaderView = imageView
+        headerView.set(height: 200)
+        tableView.tableHeaderView = headerView
 
         
-        tableView.insertSubview(backButton, aboveSubview: imageView)
+        tableView.insertSubview(backButton, aboveSubview: headerView)
         configureBackButton()
         
         tableView.separatorStyle = .none
@@ -66,32 +67,42 @@ class PictureDetailViewController: UITableViewController {
     func setup(picture: PictureViewModel) {
         self.pictureViewModel = picture
         
-        guard let url = picture.url else {
-            return
-        }
-        loadImage(url: url)
+        loadImage(url: picture.url, width: tableView.frame.width)
     }
     
     
     
     
-    func loadImage(url: URL) {
-        let imageWidth = tableView.frame.width
+    func loadImage(url: URL?, width: CGFloat) {
+        guard let url = url else {
+            return
+        }
         let resource = ImageResource(downloadURL: url)
-        let processor = ResizeImageProcessor(width: imageWidth)
-        KingfisherManager.shared.retrieveImage(with: resource, options: [.processor(processor)], progressBlock: nil) { [weak imageView] image, _, _, _ in
-            guard let header = imageView, let image = image else {
+        let processor = ResizeImageProcessor(width: width)
+        
+        let imageView = headerView.pictureView
+        imageView.kf.indicatorType = .activity
+        imageView.kf.setImage(with: resource, options: [.processor(processor)], progressBlock: nil) { image, _, _, _ in
+            guard let image = image else {
                 return
             }
+            let imageHeight = image.scale == 1.0 ? image.size.height / UIScreen.main.scale : image.size.height
             DispatchQueue.main.async {
-                UIView.animate(withDuration: 0.5) {
-                    header.setImage(image)
-                    self.tableView.tableHeaderView = header
+                UIView.animate(withDuration: 0.3) {
+                    self.headerView.set(height: imageHeight)
+                    self.tableView.tableHeaderView = self.headerView
                 }
             }
         }
     }
     
+    
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+
+        loadImage(url: pictureViewModel.url, width: size.width)
+    }
     
     
     override func viewWillAppear(_ animated: Bool) {
@@ -110,7 +121,7 @@ class PictureDetailViewController: UITableViewController {
     
     // MARK: -Private
     
-    private let imageView = PictureDetailsHeaderView(frame: CGRect.zero)
+    private let headerView = PictureDetailsHeaderView(frame: CGRect.zero)
     
     private var pictureViewModel: PictureViewModel!
     private var imageHeight: NSLayoutConstraint!
