@@ -9,114 +9,6 @@
 import UIKit
 import Kingfisher
 
-class PictureDetailsHeaderView: UIView {
-    static let identifier = String(describing: PictureDetailsHeaderView.self)
-    
-    private let pictureView = UIImageView()
-    
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        pictureView.contentMode = .scaleAspectFill
-        addSubview(pictureView)
-        setupConstraints()
-    }
-    
-    var imageHeight: NSLayoutConstraint!
-    var bottom: NSLayoutConstraint!
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    
-    func setImage(_ image: UIImage) {
-        pictureView.image = image
-        frame.size = image.size
-        imageHeight.constant = image.size.height
-        setNeedsLayout()
-    }
-    
-    
-    private func setupConstraints() {
-        pictureView.translatesAutoresizingMaskIntoConstraints = false
-        bottom = NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: pictureView, attribute: .bottom, multiplier: 1, constant: 0)
-        let leading = NSLayoutConstraint(item: pictureView, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1, constant: 0)
-        let trailing = NSLayoutConstraint(item: pictureView, attribute: .trailing, relatedBy: .equal, toItem: self, attribute: .trailing, multiplier: 1, constant: 0)
-        self.addConstraints([bottom, leading, trailing])
-        
-        imageHeight = NSLayoutConstraint(item: pictureView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 200)        
-        pictureView.addConstraint(imageHeight)
-    }
-}
-
-
-
-class PictureDescriptionViewCell: UITableViewCell {
-    
-    static let identifier = String(describing: PictureDescriptionViewCell.self)
-    
-    
-    override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(authorLabel)
-        contentView.addSubview(descriptionLabel)
-        setupConstraints()
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    
-    
-    private let titleLabel = UILabel()
-    private let descriptionLabel = UILabel()
-    private let authorLabel = UILabel()
-    
-    
-    
-    private func setupConstraints() {
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        let topTitle = NSLayoutConstraint(item: titleLabel, attribute: .top, relatedBy: .equal, toItem: contentView, attribute: .top, multiplier: 1, constant: 8)
-        let leadingTitle = NSLayoutConstraint(item: titleLabel, attribute: .leading, relatedBy: .equal, toItem: contentView, attribute: .leading, multiplier: 1, constant: 8)
-        let trailingTitle = NSLayoutConstraint(item: titleLabel, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1, constant: 8)
-        contentView.addConstraints([topTitle, leadingTitle, trailingTitle])
-        
-        authorLabel.translatesAutoresizingMaskIntoConstraints = false
-        authorLabel.numberOfLines = 0
-        authorLabel.font = UIFont.systemFont(ofSize: 14)
-        authorLabel.textColor = UIColor.darkGray
-        let topAuthor = NSLayoutConstraint(item: authorLabel, attribute: .top, relatedBy: .equal, toItem: titleLabel, attribute: .bottom, multiplier: 1, constant: 3)
-        let leadingAuthor = NSLayoutConstraint(item: authorLabel, attribute: .leading, relatedBy: .equal, toItem: contentView, attribute: .leading, multiplier: 1, constant: 8)
-        let trailingAuthor = NSLayoutConstraint(item: authorLabel, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1, constant: -8)
-        contentView.addConstraints([topAuthor, leadingAuthor, trailingAuthor])
-        
-        descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
-        descriptionLabel.font = UIFont.systemFont(ofSize: 16)
-        descriptionLabel.textColor = UIColor.darkGray
-        descriptionLabel.numberOfLines = 0
-        let topDescription = NSLayoutConstraint(item: descriptionLabel, attribute: .top, relatedBy: .equal, toItem: authorLabel, attribute: .bottom, multiplier: 1, constant: 12)
-        let leadingDescription = NSLayoutConstraint(item: descriptionLabel, attribute: .leading, relatedBy: .equal, toItem: contentView, attribute: .leading, multiplier: 1, constant: 8)
-        let trailingDescription = NSLayoutConstraint(item: descriptionLabel, attribute: .trailing, relatedBy: .equal, toItem: contentView, attribute: .trailing, multiplier: 1, constant: -8)
-        let bottomDescription = NSLayoutConstraint(item: descriptionLabel, attribute: .bottom, relatedBy: .equal, toItem: contentView, attribute: .bottom, multiplier: 1, constant: 0)
-        contentView.addConstraints([topDescription, leadingDescription, trailingDescription, bottomDescription])
-    }
-    
-    
-    func setup(picture: PictureViewModel) {
-        titleLabel.text = picture.title
-        if !picture.copyright.isEmpty {
-            authorLabel.text = "Author: \(picture.copyright)"
-        }
-        descriptionLabel.text = picture.explanation
-    }
-    
-}
-
-
 
 
 class PictureDetailViewController: UITableViewController {
@@ -136,15 +28,17 @@ class PictureDetailViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         tableView = PictureDetailTableView(frame: self.view.bounds, style: .grouped)
         tableView.dataSource = self
-        tableView.delegate = self
+        tableView.delegate = self        
         
         tableView.register(PictureDescriptionViewCell.self, forCellReuseIdentifier: PictureDescriptionViewCell.identifier)
         tableView.tableHeaderView = imageView
+
         
-//        tableView.insertSubview(backButton, aboveSubview: imageView)
-//        configureBackButton()
+        tableView.insertSubview(backButton, aboveSubview: imageView)
+        configureBackButton()
         
         tableView.separatorStyle = .none
     }
@@ -186,10 +80,15 @@ class PictureDetailViewController: UITableViewController {
         let resource = ImageResource(downloadURL: url)
         let processor = ResizeImageProcessor(width: imageWidth)
         KingfisherManager.shared.retrieveImage(with: resource, options: [.processor(processor)], progressBlock: nil) { [weak imageView] image, _, _, _ in
-            guard let view = imageView, let image = image else {
+            guard let header = imageView, let image = image else {
                 return
             }
-            view.setImage(image)
+            DispatchQueue.main.async {
+                UIView.animate(withDuration: 0.5) {
+                    header.setImage(image)
+                    self.tableView.tableHeaderView = header
+                }
+            }
         }
     }
     
@@ -201,17 +100,18 @@ class PictureDetailViewController: UITableViewController {
         self.setNeedsStatusBarAppearanceUpdate()
     }
 
-    
-    
+
+
     override func viewWillDisappear(_ animated: Bool) {
         navigationController?.setNavigationBarHidden(false, animated: true)
     }
-    
+
     
     
     // MARK: -Private
     
     private let imageView = PictureDetailsHeaderView(frame: CGRect.zero)
+    
     private var pictureViewModel: PictureViewModel!
     private var imageHeight: NSLayoutConstraint!
     private var statusBarShouldBeHidden: Bool = false

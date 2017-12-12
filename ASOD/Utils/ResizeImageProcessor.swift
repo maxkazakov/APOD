@@ -11,7 +11,10 @@ import Kingfisher
 
 struct ResizeImageProcessor: ImageProcessor {
     
-    let identifier = "com.apod.resizer"
+    var identifier: String {
+        return "com.apod.resizer.width.\(width)"
+    }
+    
     let width: CGFloat
     
     func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> Image? {
