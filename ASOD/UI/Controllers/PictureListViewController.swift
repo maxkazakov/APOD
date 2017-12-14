@@ -21,8 +21,6 @@ fileprivate class InteractivePopRecognizer: NSObject, UIGestureRecognizerDelegat
         return navigationController.viewControllers.count > 1
     }
     
-    // This is necessary because without it, subviews of your top controller can
-    // cancel out your gesture recognizer on the edge.
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }
@@ -48,7 +46,6 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
             tableView.contentInsetAdjustmentBehavior = .never
         }
         title = "Astronomy pictures of the day"
-//        navigationItem.rightBarButtonItem = refreshButton
         loadData(portionSize: portiosnSize)
         tableView.separatorStyle = .none
         refreshControl = UIRefreshControl()
@@ -62,7 +59,7 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     
     @objc func refresh(sender: Any) {
         if isLoading == .none {
-            store.dispatch(RefreshPicturesAction())
+            refreshData()
         }
         else {
             refreshControl?.endRefreshing()
@@ -173,19 +170,6 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     private var cellHeights: [IndexPath : CGFloat] = [:]
     
     
-    
-//    lazy var refreshButton: UIBarButtonItem = {
-//        UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(PictureListViewController.reload))
-//    }()
-//
-//
-//
-//    @objc private func reload() {
-//        loadData(from: nil, portionSize: portiosnSize)
-//    }
-    
-    
-    
     private func setIsLoading(_ value: LoadingState) {
         switch (isLoading, value) {
         case (.none, .loadingMore):
@@ -209,8 +193,14 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     
     
     
-    func loadData(portionSize: Int) {
+    private func loadData(portionSize: Int) {
         store.dispatch(LoadMorePicturesAction(portionSize: portionSize))
+    }
+    
+    
+    
+    private func refreshData() {
+        store.dispatch(RefreshPicturesAction())
     }
 }
 

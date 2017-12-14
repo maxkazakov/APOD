@@ -18,22 +18,19 @@ let loadMorePicturesMiddleware: Middleware<AppState> = { dispatch, getState in
             let state = getState()!
             
             let lastDate = state.picturesState.pictures.last?.date ?? nil
-            let date = lastDate?.getDateFor(days: -1) ?? Date().withoutTime()
+//            let date = lastDate?.getDateFor(days: -1) ?? Date().withoutTime()
+            let date = lastDate?.getDateFor(days: -1) ?? Date().getDateFor(days: -4)!.withoutTime()
             var dates = [Date]()
             for i in 0...(loadAction.portionSize - 1) {
                 dates.append(date.getDateFor(days: -i)!)
             }
             
-            DispatchQueue.global(qos: .userInteractive).async {
-                let result = DataSourceService.loadPictures(dates: dates)
-                DispatchQueue.main.async {
-                    switch result {
-                    case .loaded(let pictures):
-                        dispatch(LoadMorePicturesSuccessAction(pictures: pictures))
-                    case .error(let error):
-                        dispatch(LoadMorePicturesFailureAction(error: error))
-                    }
+            DataSourceService.loadPicturesAsync(from: dates, queue: DispatchQueue.main) { error, pictures in
+                if let error = error {
+                    dispatch(LoadMorePicturesFailureAction(error: error))
+                    return
                 }
+                dispatch(LoadMorePicturesSuccessAction(pictures: pictures))
             }
             return next(action)
         }
@@ -62,16 +59,12 @@ let refreshPicturesMiddleware: Middleware<AppState> = { dispatch, getState in
                 dates.append(today.getDateFor(days: -i)!)
             }
             
-            DispatchQueue.global(qos: .userInteractive).async {
-                let result = DataSourceService.loadPictures(dates: dates)
-                DispatchQueue.main.async {
-                    switch result {
-                    case .loaded(let pictures):
-                        dispatch(LoadMorePicturesSuccessAction(pictures: pictures))
-                    case .error(let error):
-                        dispatch(LoadMorePicturesFailureAction(error: error))
-                    }
-                }
+            DataSourceService.loadPicturesAsync(from: dates, queue: DispatchQueue.main) { error, pictures in
+                if let error = error {
+                    dispatch(LoadMorePicturesFailureAction(error: error))
+                    return
+                }                
+                dispatch(LoadMorePicturesSuccessAction(pictures: pictures))
             }
             return next(action)
         }

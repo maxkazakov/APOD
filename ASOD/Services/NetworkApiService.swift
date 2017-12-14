@@ -64,6 +64,52 @@ class NetworkApiService {
             throw error
         }
     }
+    
+    
+    
+    static func loadPicturesAsync(from dates: [Date], queue: DispatchQueue = .main, completion: @escaping (Error?, [PictureModel]) -> Void) {
+        let parameters: Parameters = ["dates" : dates.map{ dateFormatter.string(from: $0) }]
+        
+        Alamofire.request(url, parameters: parameters)
+            .validate(statusCode: 200..<300)
+            .validate(contentType: ["application/json"])
+            .responseJSON(queue: queue, options: []) { response in
+                switch response.result {
+                case .success(let data):
+                    var pictures = [PictureModel]()
+                    guard let jsonArr = data as? [Any] else {
+                        queue.async {
+                            completion(NetworkError.error(message: "Error trying to convert data to JSON"), [])
+                        }
+                        return
+                    }
+                    for value in jsonArr {
+                        guard var dict = value as? [String: Any] else {
+                            queue.async {
+                                completion(NetworkError.error(message: "Error trying to convert data to JSON"), [])
+                            }
+                            return
+                        }
+                        guard let date = dateFormatter.date(from: dict["date"] as! String) else {
+                            queue.async {
+                                completion(NetworkError.error(message: "Error trying to convert date from string to Date"), [])
+                            }
+                            return
+                        }
+                        dict["date"] = date
+                        let picture = PictureModel(value: dict)
+                        pictures.append(picture)
+                    }
+                    queue.async {
+                        completion(nil, pictures)
+                    }
+                case .failure(let error):
+                    queue.async {
+                        completion(error, [])
+                    }
+                }
+        }
+    }
 }
 
 

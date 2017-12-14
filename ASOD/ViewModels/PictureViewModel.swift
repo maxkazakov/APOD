@@ -15,7 +15,7 @@ enum MediaType: String {
 }
 
 
-struct PictureViewModel: Hashable {
+struct PictureViewModel: Hashable, CustomStringConvertible {
     var hashValue: Int {
         return date.hashValue
     }
@@ -50,5 +50,9 @@ struct PictureViewModel: Hashable {
         self.title = model.title
         self.hdurl = URL(string: model.url)
         self.copyright = model.copyright
+    }
+    
+    public var description: String {
+        return "\(date)"
     }
 }

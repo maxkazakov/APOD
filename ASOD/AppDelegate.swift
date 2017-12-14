@@ -16,7 +16,7 @@ var store = Store<AppState>(
     reducer: appReducer,
     state: nil,
     middleware: [
-//        loggingMiddleware,
+        loggingMiddleware,
         refreshPicturesMiddleware,
         loadMorePicturesMiddleware])
 

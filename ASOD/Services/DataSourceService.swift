@@ -46,6 +46,45 @@ class DataSourceService {
             return .error(error)
         }
     }
+    
+    
+    
+    
+    static func loadPicturesAsync(from dates: [Date], queue: DispatchQueue = .main, completion: @escaping (Error?, [PictureViewModel]) -> Void) {
+        let serialQueue = DispatchQueue(label: "com.apod.loadPictures", qos: .userInitiated)
+        // from cache first
+        DatabaseService.loadAsync(dates: dates, queue: serialQueue) { error, cacheViewModels in
+            if let error = error {
+                queue.async {
+                    completion(error, [])
+                }
+                return
+            }
+            
+            let cachedCount = cacheViewModels.count
+            queue.async {
+                completion(nil, cacheViewModels)
+            }
+            
+            if cachedCount == dates.count {
+                print("All loaded from cache")
+                return
+            }
+            
+            // cache misses
+            let foundDates = Set(cacheViewModels.map { $0.date })
+            let missedDates = Set(dates).subtracting(foundDates).sorted{ $0 > $1 }
+            
+            // try load from network
+            NetworkApiService.loadPicturesAsync(from: missedDates, queue: serialQueue) { error, pictures in
+                DatabaseService.saveAsync(pictures: pictures)
+                let viewModels = pictures.map { PictureViewModel(from: $0)}
+                queue.async {
+                    completion(nil, viewModels)
+                }
+            }
+        } 
+    }
 }
 
 
