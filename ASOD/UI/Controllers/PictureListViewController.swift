@@ -28,13 +28,37 @@ fileprivate class InteractivePopRecognizer: NSObject, UIGestureRecognizerDelegat
 
 
 class PictureListViewController: UITableViewController, StoreSubscriber {
-    private var popRecognizer: InteractivePopRecognizer?
+    
+    struct Props {
+        let loadingState: LoadingState
+        let items: [PictureViewModel]
+        let select: ((PictureViewModel) -> ())?
+        
+        static let zero = Props(loadingState: .none, items: [], select: nil)
+    }
     
     
-    private func setInteractiveRecognizer() {
-        guard let controller = navigationController else { return }
-        popRecognizer = InteractivePopRecognizer(controller: controller)
-        controller.interactivePopGestureRecognizer?.delegate = popRecognizer
+    var props = Props.zero {
+        didSet {
+            switch (props.loadingState) {
+            case .loadingMore:
+                tableView.tableFooterView?.isHidden = false
+                tableViewFooter.setIsLoading(true)
+            case .refreshing:
+                cellHeights.removeAll()
+                refreshControl?.endRefreshing()
+            case .none:
+                tableView.tableFooterView?.isHidden = true
+                tableViewFooter.setIsLoading(false)
+            }
+            tableView.reloadData()
+        }
+    }
+    
+    
+    
+    func newState(state: PicturesState) {
+        props = Props(loadingState: state.loading, items: state.pictures, select: self.select)
     }
     
     
@@ -46,19 +70,22 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
             tableView.contentInsetAdjustmentBehavior = .never
         }
         title = "Astronomy pictures of the day"
-        loadData(portionSize: portiosnSize)
+        
         tableView.separatorStyle = .none
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(refresh), for: .valueChanged)
         
         tableView.rowHeight = UITableViewAutomaticDimension
         setInteractiveRecognizer()
+        
+        // init loading
+        loadData(portionSize: portiosnSize)
     }
     
     
     
     @objc func refresh(sender: Any) {
-        if isLoading == .none {
+        if props.loadingState == .none {
             refreshData()
         }
         else {
@@ -67,19 +94,13 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     }
     
     
+    
     override var prefersStatusBarHidden: Bool {
         return false
     }
-    
-    
-    func newState(state: PicturesState) {
-        dataSource = state.pictures
-        setIsLoading(state.loading)
-        tableView.reloadData()
-    }
 
     
-
+    
     override func viewWillAppear(_ animated: Bool) {
         store.subscribe(self) { subscription in
             subscription.select { state in
@@ -108,14 +129,14 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return dataSource.count
+        return props.items.count
     }
     
     
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: PictureViewCell.identifier) as! PictureViewCell
-        let viewModel = dataSource[indexPath.row]
+        let viewModel = props.items[indexPath.row]
         cell.setup(viewModel: viewModel)
         return cell
     }
@@ -124,10 +145,10 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         cellHeights[indexPath] = cell.frame.size.height
-        if isLoading == .loadingMore {
+        if props.loadingState == .loadingMore {
             return
         }
-        let contentOffset = dataSource.count - (indexPath.row + 1)
+        let contentOffset = props.items.count - (indexPath.row + 1)
         if contentOffset == 0 {
             loadData(portionSize: portiosnSize)
         }
@@ -146,51 +167,29 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let picture = dataSource[indexPath.row]
-        switch picture.mediaType {
-        case .image:
-            let detailVc = PictureDetailViewController()
-            navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-            navigationController?.pushViewController(detailVc, animated: true)
-            detailVc.setup(picture: picture)            
-        default:
-            break
-        }        
+        let item = props.items[indexPath.row]
+        props.select?(item)
     }
     
     
     
 
     
-    // MARK: -Private
-    private var dataSource = [PictureViewModel]()
+    // MARK: -Private    
     private let tableViewFooter = PictureTableFooterView(frame: CGRect(x: 0, y: 0, width: 0, height: 50))
-    private var isLoading: LoadingState = .none
     private var portiosnSize = 10
     private var cellHeights: [IndexPath : CGFloat] = [:]
     
     
-    private func setIsLoading(_ value: LoadingState) {
-        switch (isLoading, value) {
-        case (.none, .loadingMore):
-            tableView.tableFooterView?.isHidden = false
-            tableViewFooter.setIsLoading(true)
-            
-        case (.loadingMore, .none):
-            tableView.tableFooterView?.isHidden = true
-            tableViewFooter.setIsLoading(false)
-            
-        case (.refreshing, .none):
-            cellHeights.removeAll()
-            refreshControl?.endRefreshing()
-        
-        default:
-            break
-        }
-        
-        isLoading = value        
-    }
     
+    private var popRecognizer: InteractivePopRecognizer?
+    
+    
+    private func setInteractiveRecognizer() {
+        guard let controller = navigationController else { return }
+        popRecognizer = InteractivePopRecognizer(controller: controller)
+        controller.interactivePopGestureRecognizer?.delegate = popRecognizer
+    }
     
     
     private func loadData(portionSize: Int) {
@@ -201,6 +200,20 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     
     private func refreshData() {
         store.dispatch(RefreshPicturesAction())
+    }
+    
+    
+    
+    private func select(picture item: PictureViewModel) {
+        switch item.mediaType {
+        case .image:
+            let detailVc = PictureDetailViewController()
+            self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+            self.navigationController?.pushViewController(detailVc, animated: true)
+            detailVc.setup(picture: item)
+        default:
+            break
+        }
     }
 }
 
