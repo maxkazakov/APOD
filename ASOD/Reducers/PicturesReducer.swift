@@ -18,8 +18,7 @@ func picturesReducer(state: PicturesState?, action: Action) -> PicturesState {
     case _ as RefreshPicturesAction:
         return PicturesState(loading: .refreshing, error: nil, pictures: state.pictures)
         
-    case let success as LoadMorePicturesSuccessAction:        
-        print("Was: \(state.pictures.count), now: \(success.pictures.count)")
+    case let success as LoadMorePicturesSuccessAction:
         let pictures = (success.pictures + state.pictures).sorted { $0.date > $1.date }
         return PicturesState(loading: .none, error: nil, pictures: pictures)
         
@@ -27,7 +26,6 @@ func picturesReducer(state: PicturesState?, action: Action) -> PicturesState {
         return PicturesState(loading: .none, error: failure.error, pictures: state.pictures)
     
     case let success as RefreshPicturesSuccessAction:
-        print("Was: \(state.pictures.count), now: \(success.pictures.count)")
         let pictures = (success.pictures + state.pictures).sorted { $0.date > $1.date }
         return PicturesState(loading: .none, error: nil, pictures: pictures)
         

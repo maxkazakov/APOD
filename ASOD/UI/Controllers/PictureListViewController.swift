@@ -9,34 +9,23 @@
 import UIKit
 import ReSwift
 
-fileprivate class InteractivePopRecognizer: NSObject, UIGestureRecognizerDelegate {
-    
-    var navigationController: UINavigationController
-    
-    init(controller: UINavigationController) {
-        self.navigationController = controller
-    }
-    
-    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        return navigationController.viewControllers.count > 1
-    }
-    
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return true
-    }
-}
 
 
-class PictureListViewController: UITableViewController, StoreSubscriber {
+class PictureListViewController: UITableViewController {
     
     struct Props {
+        struct PictureTableItem {
+            let viewModel: PictureViewModel
+            let onSelect: (() -> Void)?
+        }
         let loadingState: LoadingState
-        let items: [PictureViewModel]
-        let select: ((PictureViewModel) -> ())?
+        let items: [PictureTableItem]
         
-        static let zero = Props(loadingState: .none, items: [], select: nil)
+        let loadData: ((_ portionSize: Int) -> Void)?
+        let refreshData: (() -> Void)?
+        
+        static let zero = Props(loadingState: .none, items: [], loadData: nil, refreshData: nil)
     }
-    
     
     var props = Props.zero {
         didSet {
@@ -46,20 +35,15 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
                 tableViewFooter.setIsLoading(true)
             case .refreshing:
                 cellHeights.removeAll()
-                refreshControl?.endRefreshing()
             case .none:
                 tableView.tableFooterView?.isHidden = true
                 tableViewFooter.setIsLoading(false)
+                refreshControl?.endRefreshing()
             }
             tableView.reloadData()
         }
     }
-    
-    
-    
-    func newState(state: PicturesState) {
-        props = Props(loadingState: state.loading, items: state.pictures, select: self.select)
-    }
+
     
     
     override func viewDidLoad() {
@@ -78,15 +62,27 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
         tableView.rowHeight = UITableViewAutomaticDimension
         setInteractiveRecognizer()
         
+        store.subscribe(self) { subscription in
+            subscription.select { state in
+                return state.picturesState
+            }
+        }
         // init loading
-        loadData(portionSize: portiosnSize)
+        props.loadData?(portionSize)
     }
+    
+    
+    
+    deinit {
+        store.unsubscribe(self)
+    }
+    
     
     
     
     @objc func refresh(sender: Any) {
         if props.loadingState == .none {
-            refreshData()
+            props.refreshData?()
         }
         else {
             refreshControl?.endRefreshing()
@@ -100,26 +96,10 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     }
 
     
-    
-    override func viewWillAppear(_ animated: Bool) {
-        store.subscribe(self) { subscription in
-            subscription.select { state in
-                return state.picturesState
-            }
-        }
-    }
-    
     override func viewDidAppear(_ animated: Bool) {
         navigationController?.navigationBar.isHidden = false
     }
 
-    
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        store.unsubscribe(self)        
-    }
-    
-    
     
     
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -136,7 +116,7 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: PictureViewCell.identifier) as! PictureViewCell
-        let viewModel = props.items[indexPath.row]
+        let viewModel = props.items[indexPath.row].viewModel
         cell.setup(viewModel: viewModel)
         return cell
     }
@@ -150,7 +130,7 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
         }
         let contentOffset = props.items.count - (indexPath.row + 1)
         if contentOffset == 0 {
-            loadData(portionSize: portiosnSize)
+            props.loadData?(portionSize)
         }
     }
     
@@ -168,7 +148,7 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let item = props.items[indexPath.row]
-        props.select?(item)
+        item.onSelect?()
     }
     
     
@@ -177,10 +157,27 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
     
     // MARK: -Private    
     private let tableViewFooter = PictureTableFooterView(frame: CGRect(x: 0, y: 0, width: 0, height: 50))
-    private var portiosnSize = 10
     private var cellHeights: [IndexPath : CGFloat] = [:]
+    private let portionSize = 10
     
     
+    
+    class InteractivePopRecognizer: NSObject, UIGestureRecognizerDelegate {
+        
+        var navigationController: UINavigationController
+        
+        init(controller: UINavigationController) {
+            self.navigationController = controller
+        }
+        
+        func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+            return navigationController.viewControllers.count > 1
+        }
+        
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+            return true
+        }
+    }
     
     private var popRecognizer: InteractivePopRecognizer?
     
@@ -190,30 +187,49 @@ class PictureListViewController: UITableViewController, StoreSubscriber {
         popRecognizer = InteractivePopRecognizer(controller: controller)
         controller.interactivePopGestureRecognizer?.delegate = popRecognizer
     }
+}
+
+
+
+
+
+
+extension PictureListViewController: StoreSubscriber {
     
-    
-    private func loadData(portionSize: Int) {
-        store.dispatch(LoadMorePicturesAction(portionSize: portionSize))
-    }
-    
-    
-    
-    private func refreshData() {
-        store.dispatch(RefreshPicturesAction())
-    }
-    
-    
-    
-    private func select(picture item: PictureViewModel) {
-        switch item.mediaType {
-        case .image:
-            let detailVc = PictureDetailViewController()
-            self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-            self.navigationController?.pushViewController(detailVc, animated: true)
-            detailVc.setup(picture: item)
-        default:
-            break
+    func newState(state: PicturesState) {
+        let loadData: (Int) -> Void = { portionSize in
+            store.dispatch(LoadMorePicturesAction(portionSize: portionSize))
         }
+        let refreshData: () -> Void = {
+            if state.loading != .refreshing {
+                store.dispatch(RefreshPicturesAction())
+            }
+        }
+        
+        let items = state.pictures.map { viewModel in
+            Props.PictureTableItem(viewModel: viewModel, onSelect: {
+                switch viewModel.mediaType {
+                case .image:
+                    let detailVc = PictureDetailViewController()
+                    self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+                    self.navigationController?.pushViewController(detailVc, animated: true)
+                    detailVc.setup(picture: viewModel)
+                default:
+                    break
+                }
+            })
+        }
+        props = Props(loadingState: state.loading,
+                      items: items,
+                      loadData: loadData,
+                      refreshData: refreshData
+        )
     }
 }
+
+
+
+
+
+
 
