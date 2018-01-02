@@ -9,8 +9,16 @@
 import Foundation
 import ReSwift
 
+enum LoadingState {
+    case none
+    case loadingMore
+    case refreshing
+}
+
+
 
 struct AppState: StateType {
-    let picturesState: PicturesState
+    let picturesList: PictureListState
+    let selectedPicture: SelectedPictureState
 }
 

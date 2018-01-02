@@ -36,6 +36,9 @@ class PictureListViewController: UITableViewController {
             case .refreshing:
                 cellHeights.removeAll()
             case .none:
+                if props.items.isEmpty {
+                    props.loadData?(portionSize)
+                }
                 tableView.tableFooterView?.isHidden = true
                 tableViewFooter.setIsLoading(false)
                 refreshControl?.endRefreshing()
@@ -64,11 +67,9 @@ class PictureListViewController: UITableViewController {
         
         store.subscribe(self) { subscription in
             subscription.select { state in
-                return state.picturesState
+                return state.picturesList
             }
         }
-        // init loading
-        props.loadData?(portionSize)
     }
     
     
@@ -196,7 +197,7 @@ class PictureListViewController: UITableViewController {
 
 extension PictureListViewController: StoreSubscriber {
     
-    func newState(state: PicturesState) {
+    func newState(state: PictureListState) {
         let loadData: (Int) -> Void = { portionSize in
             store.dispatch(LoadMorePicturesAction(portionSize: portionSize))
         }
@@ -213,7 +214,7 @@ extension PictureListViewController: StoreSubscriber {
                     let detailVc = PictureDetailViewController()
                     self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
                     self.navigationController?.pushViewController(detailVc, animated: true)
-                    detailVc.setup(picture: viewModel)
+                    store.dispatch(SelectPicturesAction(picture: viewModel))
                 default:
                     break
                 }

@@ -8,11 +8,6 @@
 
 import Foundation
 
-enum LoadingState {
-    case none
-    case loadingMore
-    case refreshing
-}
 
 
 

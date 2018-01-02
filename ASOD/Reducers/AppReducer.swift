@@ -10,7 +10,8 @@ import ReSwift
 
 func appReducer(action: Action, state: AppState?) -> AppState {
     return AppState(
-        picturesState: picturesReducer(state: state?.picturesState, action: action)
+        picturesList: picturesReducer(state: state?.picturesList, action: action),
+        selectedPicture: selectedPictureReducer(state: state?.selectedPicture, action: action)
     )
 }
 

@@ -1,5 +1,5 @@
 //
-//  PictureDetailsState.swift
+//  SelectedPictureState.swift
 //  ASOD
 //
 //  Created by Максим Казаков on 27/12/2017.
@@ -7,3 +7,10 @@
 //
 
 import Foundation
+
+
+struct SelectedPictureState {
+    let picture: PictureViewModel?
+}
+
+

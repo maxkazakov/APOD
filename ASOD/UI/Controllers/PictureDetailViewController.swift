@@ -8,11 +8,29 @@
 
 import UIKit
 import Kingfisher
+import ReSwift
 
 
 
 class PictureDetailViewController: UITableViewController {
-
+    
+    struct Props {
+        let viewModel: PictureViewModel?
+        
+        static let zero = Props(viewModel: nil)
+    }
+    
+    
+    var props = Props.zero {
+         didSet {
+            guard let viewModel = props.viewModel else {
+                return
+            }
+            loadImage(url: viewModel.url, width: tableView.frame.width)
+            tableView.reloadData()
+        }
+    }
+    
     
     override var prefersStatusBarHidden: Bool {
         return statusBarShouldBeHidden
@@ -42,11 +60,23 @@ class PictureDetailViewController: UITableViewController {
         configureBackButton()
         
         tableView.separatorStyle = .none
+        
+        store.subscribe(self) { subscription in
+            subscription.select { state in
+                return state.selectedPicture
+            }
+        }
+    }
+    
+    
+    
+    deinit {
+        store.unsubscribe(self)
     }
     
     
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        return props.viewModel == nil ? 0 : 1
     }
     
     
@@ -56,24 +86,46 @@ class PictureDetailViewController: UITableViewController {
     }
     
     
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: PictureDescriptionViewCell.identifier) as! PictureDescriptionViewCell
-        cell.setup(picture: pictureViewModel)
+        cell.setup(picture: props.viewModel!)
         return cell
     }
+
     
     
-    
-    func setup(picture: PictureViewModel) {
-        self.pictureViewModel = picture
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
         
-        loadImage(url: picture.url, width: tableView.frame.width)
+        loadImage(url: props.viewModel?.url, width: size.width)
     }
     
     
     
+    override func viewWillAppear(_ animated: Bool) {
+        navigationController?.setNavigationBarHidden(true, animated: true)
+        statusBarShouldBeHidden = true
+        self.setNeedsStatusBarAppearanceUpdate()
+    }
+
+
+
+    override func viewWillDisappear(_ animated: Bool) {
+        navigationController?.setNavigationBarHidden(false, animated: true)
+    }
+
     
-    func loadImage(url: URL?, width: CGFloat) {
+    
+    // MARK: -Private
+    
+    private let headerView = PictureDetailsHeaderView(frame: CGRect.zero)
+    private var imageHeight: NSLayoutConstraint!
+    private var statusBarShouldBeHidden: Bool = false
+    
+    
+    
+    private func loadImage(url: URL?, width: CGFloat) {
         guard let url = url else {
             return
         }
@@ -95,37 +147,6 @@ class PictureDetailViewController: UITableViewController {
             }
         }
     }
-    
-    
-    
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransition(to: size, with: coordinator)
-
-        loadImage(url: pictureViewModel.url, width: size.width)
-    }
-    
-    
-    override func viewWillAppear(_ animated: Bool) {
-        navigationController?.setNavigationBarHidden(true, animated: true)
-        statusBarShouldBeHidden = true
-        self.setNeedsStatusBarAppearanceUpdate()
-    }
-
-
-
-    override func viewWillDisappear(_ animated: Bool) {
-        navigationController?.setNavigationBarHidden(false, animated: true)
-    }
-
-    
-    
-    // MARK: -Private
-    
-    private let headerView = PictureDetailsHeaderView(frame: CGRect.zero)
-    
-    private var pictureViewModel: PictureViewModel!
-    private var imageHeight: NSLayoutConstraint!
-    private var statusBarShouldBeHidden: Bool = false
     
     
     
@@ -155,3 +176,13 @@ class PictureDetailViewController: UITableViewController {
         tableView.addConstraints([topButton, leadingButton, widthButton, heightButton])
     }
 }
+
+
+
+extension PictureDetailViewController: StoreSubscriber {
+    
+    func newState(state: SelectedPictureState) {
+        props = Props(viewModel: state.picture)
+    }
+}
+

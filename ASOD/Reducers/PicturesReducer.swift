@@ -8,32 +8,38 @@
 
 import ReSwift
 
-func picturesReducer(state: PicturesState?, action: Action) -> PicturesState {
-    let state = state ?? initPictureState()
+func picturesReducer(state: PictureListState?, action: Action) -> PictureListState {
+    
+    func initState() -> PictureListState {
+        return PictureListState(loading: .none, error: nil, pictures: [])
+    }
+    
+    
+    let state = state ?? initState()
 
     switch action {
     case _ as LoadMorePicturesAction:
-        return PicturesState(loading: .loadingMore, error: nil, pictures: state.pictures)
+        return PictureListState(loading: .loadingMore, error: nil, pictures: state.pictures)
         
     case _ as RefreshPicturesAction:
-        return PicturesState(loading: .refreshing, error: nil, pictures: state.pictures)
+        return PictureListState(loading: .refreshing, error: nil, pictures: state.pictures)
         
     case let success as LoadMorePicturesSuccessAction:
         let pictures = (success.pictures + state.pictures).sorted { $0.date > $1.date }
-        return PicturesState(loading: .none, error: nil, pictures: pictures)
+        return PictureListState(loading: .none, error: nil, pictures: pictures)
         
     case let failure as LoadMorePicturesFailureAction:
-        return PicturesState(loading: .none, error: failure.error, pictures: state.pictures)
+        return PictureListState(loading: .none, error: failure.error, pictures: state.pictures)
     
     case let success as RefreshPicturesSuccessAction:
         let pictures = (success.pictures + state.pictures).sorted { $0.date > $1.date }
-        return PicturesState(loading: .none, error: nil, pictures: pictures)
+        return PictureListState(loading: .none, error: nil, pictures: pictures)
         
     case let failure as RefreshPicturesFailureAction:
-        return PicturesState(loading: .none, error: failure.error, pictures: state.pictures)
+        return PictureListState(loading: .none, error: failure.error, pictures: state.pictures)
     
     case _ as StopRefreshPicturesAction:
-        return PicturesState(loading: .none, error: nil, pictures: state.pictures)
+        return PictureListState(loading: .none, error: nil, pictures: state.pictures)
         
     
     default:
@@ -43,7 +49,19 @@ func picturesReducer(state: PicturesState?, action: Action) -> PicturesState {
 
 
 
-fileprivate func initPictureState() -> PicturesState {
-    return PicturesState(loading: .none, error: nil, pictures: [])
+func selectedPictureReducer(state: SelectedPictureState?, action: Action) -> SelectedPictureState {    
+    func initState() -> SelectedPictureState {
+        return SelectedPictureState(picture: nil)
+    }
+    
+    let state = state ?? initState()
+    
+    switch action {
+    case let action as SelectPicturesAction:
+        return SelectedPictureState(picture: action.picture)
+    default:
+        return state
+    }
 }
+
 

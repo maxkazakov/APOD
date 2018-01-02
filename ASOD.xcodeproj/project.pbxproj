@@ -16,13 +16,13 @@
 		9B4435C21FBA08B700CD9252 /* NetworkApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B4435C11FBA08B700CD9252 /* NetworkApiService.swift */; };
 		9B8CDEFD1FB83F21002844D5 /* AppReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B8CDEFC1FB83F21002844D5 /* AppReducer.swift */; };
 		9B8CDEFF1FB83F7A002844D5 /* PicturesReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B8CDEFE1FB83F7A002844D5 /* PicturesReducer.swift */; };
+		9B94DFDF1FF4133D00B30CFE /* SelectedPictureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B94DFDE1FF4133D00B30CFE /* SelectedPictureState.swift */; };
 		9BA8DF991FB4CA76009A36FC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BA8DF981FB4CA76009A36FC /* AppDelegate.swift */; };
 		9BA8DF9B1FB4CA76009A36FC /* PictureListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BA8DF9A1FB4CA76009A36FC /* PictureListViewController.swift */; };
 		9BA8DF9E1FB4CA76009A36FC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9BA8DF9C1FB4CA76009A36FC /* Main.storyboard */; };
 		9BA8DFA01FB4CA76009A36FC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9BA8DF9F1FB4CA76009A36FC /* Assets.xcassets */; };
 		9BA8DFA31FB4CA76009A36FC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9BA8DFA11FB4CA76009A36FC /* LaunchScreen.storyboard */; };
 		9BA8DFAD1FB4CBF1009A36FC /* ReSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BA8DFAB1FB4CBF1009A36FC /* ReSwift.framework */; };
-		9BA8DFAE1FB4CBF1009A36FC /* ReSwiftRouter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BA8DFAC1FB4CBF1009A36FC /* ReSwiftRouter.framework */; };
 		9BA8DFB21FB4CCCE009A36FC /* DataSourceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BA8DFB11FB4CCCE009A36FC /* DataSourceService.swift */; };
 		9BA8DFB81FB5FEB4009A36FC /* RealmSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BA8DFB61FB5FEB4009A36FC /* RealmSwift.framework */; };
 		9BA8DFB91FB5FEB4009A36FC /* Realm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BA8DFB71FB5FEB4009A36FC /* Realm.framework */; };
@@ -32,7 +32,7 @@
 		9BA8DFCE1FB6CC7C009A36FC /* Realm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BA8DFB71FB5FEB4009A36FC /* Realm.framework */; };
 		9BA8DFCF1FB6CC7C009A36FC /* RealmSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BA8DFB61FB5FEB4009A36FC /* RealmSwift.framework */; };
 		9BA8DFD11FB764FD009A36FC /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BA8DFD01FB764FD009A36FC /* AppState.swift */; };
-		9BA8DFD31FB77187009A36FC /* PicturesState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BA8DFD21FB77187009A36FC /* PicturesState.swift */; };
+		9BA8DFD31FB77187009A36FC /* PictureListState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BA8DFD21FB77187009A36FC /* PictureListState.swift */; };
 		9BA8DFDD1FB8395F009A36FC /* PicturesActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BA8DFDC1FB8395F009A36FC /* PicturesActions.swift */; };
 		9BA8DFE01FB83B45009A36FC /* LoggingMiddleware.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BA8DFDF1FB83B45009A36FC /* LoggingMiddleware.swift */; };
 		9BBD082B1FDD5AF6004C6C44 /* PictureDetailsTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BBD082A1FDD5AF6004C6C44 /* PictureDetailsTableView.swift */; };
@@ -62,6 +62,7 @@
 		9B4435C11FBA08B700CD9252 /* NetworkApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkApiService.swift; sourceTree = "<group>"; };
 		9B8CDEFC1FB83F21002844D5 /* AppReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReducer.swift; sourceTree = "<group>"; };
 		9B8CDEFE1FB83F7A002844D5 /* PicturesReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicturesReducer.swift; sourceTree = "<group>"; };
+		9B94DFDE1FF4133D00B30CFE /* SelectedPictureState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedPictureState.swift; sourceTree = "<group>"; };
 		9BA8DF951FB4CA76009A36FC /* ASOD.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ASOD.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BA8DF981FB4CA76009A36FC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9BA8DF9A1FB4CA76009A36FC /* PictureListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PictureListViewController.swift; sourceTree = "<group>"; };
@@ -80,7 +81,7 @@
 		9BA8DFC61FB6C774009A36FC /* ASODTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASODTests.swift; sourceTree = "<group>"; };
 		9BA8DFC81FB6C774009A36FC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9BA8DFD01FB764FD009A36FC /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
-		9BA8DFD21FB77187009A36FC /* PicturesState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicturesState.swift; sourceTree = "<group>"; };
+		9BA8DFD21FB77187009A36FC /* PictureListState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PictureListState.swift; sourceTree = "<group>"; };
 		9BA8DFDC1FB8395F009A36FC /* PicturesActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicturesActions.swift; sourceTree = "<group>"; };
 		9BA8DFDF1FB83B45009A36FC /* LoggingMiddleware.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggingMiddleware.swift; sourceTree = "<group>"; };
 		9BBD082A1FDD5AF6004C6C44 /* PictureDetailsTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PictureDetailsTableView.swift; sourceTree = "<group>"; };
@@ -96,7 +97,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				9BA8DFAD1FB4CBF1009A36FC /* ReSwift.framework in Frameworks */,
-				9BA8DFAE1FB4CBF1009A36FC /* ReSwiftRouter.framework in Frameworks */,
 				9BA8DFB81FB5FEB4009A36FC /* RealmSwift.framework in Frameworks */,
 				9BA8DFB91FB5FEB4009A36FC /* Realm.framework in Frameworks */,
 			);
@@ -188,7 +188,8 @@
 			isa = PBXGroup;
 			children = (
 				9BA8DFD01FB764FD009A36FC /* AppState.swift */,
-				9BA8DFD21FB77187009A36FC /* PicturesState.swift */,
+				9BA8DFD21FB77187009A36FC /* PictureListState.swift */,
+				9B94DFDE1FF4133D00B30CFE /* SelectedPictureState.swift */,
 			);
 			path = Store;
 			sourceTree = "<group>";
@@ -398,7 +399,6 @@
 			);
 			inputPaths = (
 				"$(SRCROOT)/Carthage/Build/iOS/ReSwift.framework",
-				"$(SRCROOT)/Carthage/Build/iOS/ReSwiftRouter.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/Realm.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/RealmSwift.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/Alamofire.framework",
@@ -421,7 +421,7 @@
 				9B410CB21FD40F0800B634FD /* PictureDetailViewController.swift in Sources */,
 				9B410CB01FD32F1C00B634FD /* UIImage+Extention.swift in Sources */,
 				9BA8DFE01FB83B45009A36FC /* LoggingMiddleware.swift in Sources */,
-				9BA8DFD31FB77187009A36FC /* PicturesState.swift in Sources */,
+				9BA8DFD31FB77187009A36FC /* PictureListState.swift in Sources */,
 				9BBD082B1FDD5AF6004C6C44 /* PictureDetailsTableView.swift in Sources */,
 				9BA8DF9B1FB4CA76009A36FC /* PictureListViewController.swift in Sources */,
 				9BA8DFBF1FB6136B009A36FC /* PictureViewModel.swift in Sources */,
@@ -440,6 +440,7 @@
 				9BBD082F1FE02E58004C6C44 /* PictureDetailsHeaderView.swift in Sources */,
 				9BED535A1FBC0D8D0032A010 /* Date+Extention.swift in Sources */,
 				9BA8DFBC1FB5FF6D009A36FC /* PictureModel.swift in Sources */,
+				9B94DFDF1FF4133D00B30CFE /* SelectedPictureState.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -62,9 +62,12 @@ class DataSourceService {
             }
             
             let cachedCount = cacheViewModels.count
-            queue.async {
-                completion(nil, cacheViewModels)
+            if cachedCount > 0 {
+                queue.async {
+                    completion(nil, cacheViewModels)
+                }
             }
+            
             
             if cachedCount == dates.count {
                 print("All loaded from cache")

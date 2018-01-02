@@ -43,3 +43,12 @@ struct RefreshPicturesFailureAction: Action {
 struct StopRefreshPicturesAction: Action {
     
 }
+
+
+
+struct SelectPicturesAction: Action {
+    let picture: PictureViewModel
+}
+
+
+

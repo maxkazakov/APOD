@@ -17,7 +17,7 @@ let loadMorePicturesMiddleware: Middleware<AppState> = { dispatch, getState in
             }
             let state = getState()!
             
-            let lastDate = state.picturesState.pictures.last?.date ?? nil
+            let lastDate = state.picturesList.pictures.last?.date ?? nil
 //            let date = lastDate?.getDateFor(days: -1) ?? Date().withoutTime()
             let date = lastDate?.getDateFor(days: -1) ?? Date().getDateFor(days: -4)!.withoutTime()
             var dates = [Date]()
@@ -47,7 +47,7 @@ let refreshPicturesMiddleware: Middleware<AppState> = { dispatch, getState in
             let state = getState()!
             
             let today = Date().withoutTime()
-            let firstActualDate = state.picturesState.pictures.first?.date ?? nil
+            let firstActualDate = state.picturesList.pictures.first?.date ?? nil
             guard let portionSize = firstActualDate.map({ today.daysOffset(from: $0) }), portionSize > 0 else {
                 next(action)
                 dispatch(StopRefreshPicturesAction())
