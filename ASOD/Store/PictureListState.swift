@@ -16,7 +16,7 @@ enum LoadingState {
 
 
 
-struct PicturesState {
+struct PictureListState {
     let loading: LoadingState        
     
     let error: Error?
